@@ -2,7 +2,7 @@
 import 'dart:async';
 
 import 'package:belilli/appcomman/AppColor.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
@@ -22,7 +22,6 @@ class _Enjoy1 extends State<Enjoy1> {
    String testID = 'book_test';
   final InAppPurchase _iap = InAppPurchase.instance;
 
-   // checks if the API is available on this device
    bool _isAvailable = false;
 
   List<ProductDetails> _products = [];
@@ -78,15 +77,6 @@ class _Enjoy1 extends State<Enjoy1> {
           height: double.infinity,
           width: double.infinity,
           color: primary,
-
-          /* semanticContainer: true,
-            clipBehavior: Clip.antiAliasWithSaveLayer,
-            margin: EdgeInsets.only(top: 31,left: 25,right: 25,bottom: 68),
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),*/
-          
           child: Container(
 
             decoration: BoxDecoration(

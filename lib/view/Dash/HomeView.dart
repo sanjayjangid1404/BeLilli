@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:belilli/Model/RequestModel/BusinessFilterRequest.dart';
 import 'package:belilli/api/ArrayController.dart';
@@ -8,9 +9,10 @@ import 'package:belilli/appcomman/AppFont.dart';
 import 'package:belilli/appcomman/AppUtil.dart';
 import 'package:belilli/appcomman/AppVariable.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -348,7 +350,48 @@ class _HomeView extends State<HomeView> {
               padding: const EdgeInsets.symmetric(horizontal: 0.0,vertical: 0),
               child: SizedBox(
                 height: 40,
-                child: TextField(
+                child: /*TypeAheadField(
+
+                  textFieldConfiguration: TextFieldConfiguration(
+                      autofocus: true,
+                      style: DefaultTextStyle.of(context).style.copyWith(
+                          fontStyle: FontStyle.italic
+                      ),
+                    decoration: InputDecoration(
+                      hintText: 'Help me find…',
+                      prefixIcon: Icon(Icons.search,color: Color(0xFF9A9A9A),size: 25,),
+                      hintStyle: TextStyle(fontSize: 14,fontFamily:primaryFont,color: Color(0xFF454545)),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                        borderSide: BorderSide(color: Color(0xFFdbd3f4), width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                        borderSide: BorderSide(color: Color(0xFFdbd3f4), width: 1),
+                      ),
+                      filled: true,
+                      contentPadding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
+                      fillColor: Color(0xFFF8F9FA),
+                    ),
+                  ),
+                  suggestionsCallback: (pattern) async {
+                    return await BackendService.getSuggestions(pattern);
+                  },
+                  itemBuilder: (context, suggestion) {
+                    return ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+
+                      title: Text(suggestion['name']!),
+                    );
+                  },
+                  onSuggestionSelected: (suggestion) {
+                    *//*Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ProductPage(product: suggestion)
+                    ));*//*
+                  },
+                )*/
+
+                 TextField(
                   controller: searchCtrl,
                   keyboardType: TextInputType.text,
                   onChanged: (value){
@@ -357,6 +400,7 @@ class _HomeView extends State<HomeView> {
                   onSubmitted: (value){
                     getBusiness(value,selectCategory.join(","));
                   },
+
                   decoration: InputDecoration(
                     hintText: 'Help me find…',
                     prefixIcon: Icon(Icons.search,color: Color(0xFF9A9A9A),size: 25,),
@@ -857,5 +901,15 @@ class _HomeView extends State<HomeView> {
 
   Future<void> _refreshBusiness(BuildContext context) async {
     return getAllCategory();
+  }
+}
+
+class BackendService {
+  static Future<List<Map<String, String>>> getSuggestions(String query) async {
+    await Future<void>.delayed(Duration(seconds: 1));
+
+    return List.generate(3, (index) {
+      return {'name': query + index.toString(), 'price': Random().nextInt(100).toString()};
+    });
   }
 }
