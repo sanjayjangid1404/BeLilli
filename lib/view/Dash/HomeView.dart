@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:belilli/Model/RequestModel/BusinessFilterRequest.dart';
+import 'package:belilli/Model/ResponseModel/SearchResponse.dart';
 import 'package:belilli/api/ArrayController.dart';
 import 'package:belilli/appcomman/AppColor.dart';
 import 'package:belilli/appcomman/AppFont.dart';
@@ -19,6 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Model/RequestModel/AddFavouriteRequest.dart';
 import '../../Model/RequestModel/RemoveFavRequest.dart';
+import '../../Model/RequestModel/SearchItemFavRequest.dart';
 import '../../Model/ResponseModel/BusinessResponse.dart';
 import '../../Model/ResponseModel/CategoryListResponse.dart';
 import '../../Model/ResponseModel/FeaturedListResponse.dart';
@@ -43,6 +45,7 @@ class _HomeView extends State<HomeView> {
   String userID = "";
   String userLat = "0";
   String userLon = "0";
+  String userRadius = "0";
   double position  = 0;
   List<bool>favItemValue = [];
   BusinessResponse businessResponse = BusinessResponse();
@@ -53,6 +56,7 @@ class _HomeView extends State<HomeView> {
   bool isFeaturing = false;
   bool isDataNotFound = false;
   bool isCategoryFound = true;
+  SearchResponse response = SearchResponse();
   // on below line we have specified camera position
   static final CameraPosition _kGoogle = const CameraPosition(
     target: LatLng(20.42796133580664, 80.885749655962),
@@ -85,6 +89,7 @@ class _HomeView extends State<HomeView> {
       userID = sp.getString(saveUserID)!=null ? sp.getString(saveUserID)! : "";
       userLon = sp.getString(saveUserLon)!=null ? sp.getString(saveUserLon)! : "0";
       userLat = sp.getString(saveUserLat)!=null ? sp.getString(saveUserLat)! : "0";
+      userRadius = sp.getString("radius")!=null ? sp.getString("radius")! : "0";
       selectCategory = sp.getStringList("filterList")!=null ? sp.getStringList("filterList")!:[];
 
 
@@ -115,7 +120,7 @@ class _HomeView extends State<HomeView> {
 
     });
   }
-  getBusiness(String searchValue,String categoryID)
+  getBusiness(String searchValue,String categoryID,String userRadius)
   {
 
     setState(() {
@@ -125,6 +130,7 @@ class _HomeView extends State<HomeView> {
     BusinessFilterRequest request = BusinessFilterRequest("", "", "", "", "", "","");
     request.category_ids = categoryID;
     request.userId = userID;
+    request.radius = userRadius;
     request.longitude = userLon;
     request.latitude = userLat;
     request.search_key = searchValue;
@@ -234,7 +240,7 @@ class _HomeView extends State<HomeView> {
               categoryId.add(categoryListResponse.data![i].id.toString());
             }
 
-          getBusiness("",selectCategory.join(","));
+          getBusiness("",selectCategory.join(","),userRadius);
 
         }
 
@@ -350,23 +356,44 @@ class _HomeView extends State<HomeView> {
               padding: const EdgeInsets.symmetric(horizontal: 0.0,vertical: 0),
               child: SizedBox(
                 height: 40,
-                child: /*TypeAheadField(
+                child: TypeAheadField(
+                  suggestionsBoxDecoration: SuggestionsBoxDecoration(
+                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10),bottomRight: Radius.circular(10)),
+
+                  ),suggestionsBoxVerticalOffset: 0,
 
                   textFieldConfiguration: TextFieldConfiguration(
                       autofocus: true,
-                      style: DefaultTextStyle.of(context).style.copyWith(
-                          fontStyle: FontStyle.italic
-                      ),
+                      controller: searchCtrl,
+                      onChanged: (value){
+                        setState(() {
+                          if(value.length>2) {
+                            getAllSearchResult(value);
+                          }
+                          else {
+                            if(response.data!=null) {
+                              response.data!.clear();
+                            }
+                          }
+                        });
+                      },
+                    onSubmitted: (value){
+                        setState(() {
+                          getBusiness(value,selectCategory.join(","),userRadius);
+                        });
+                    },
+                      style: AppUtil.textStyle(),
                     decoration: InputDecoration(
+
                       hintText: 'Help me find…',
                       prefixIcon: Icon(Icons.search,color: Color(0xFF9A9A9A),size: 25,),
                       hintStyle: TextStyle(fontSize: 14,fontFamily:primaryFont,color: Color(0xFF454545)),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                        borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(color: Color(0xFFdbd3f4), width: 1),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                        borderRadius: response.data != null  && response.data!.length>0 ? BorderRadius.only(topRight: Radius.circular(10),topLeft: Radius.circular(10)) : BorderRadius.circular(10),
                         borderSide: BorderSide(color: Color(0xFFdbd3f4), width: 1),
                       ),
                       filled: true,
@@ -375,30 +402,35 @@ class _HomeView extends State<HomeView> {
                     ),
                   ),
                   suggestionsCallback: (pattern) async {
-                    return await BackendService.getSuggestions(pattern);
+                    return List.generate(getSearchData(response).length, (index) {
+                      return {'name': getSearchData(response)[index]};
+                    });
+                  },
+                  noItemsFoundBuilder: (context){
+                    return SizedBox();
                   },
                   itemBuilder: (context, suggestion) {
-                    return ListTile(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-
-                      title: Text(suggestion['name']!),
+                    return   Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10,vertical: 6),
+                      child: Text(suggestion['name']!,style: TextStyle(fontSize: 12,color: Colors.black),),
                     );
                   },
                   onSuggestionSelected: (suggestion) {
-                    *//*Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ProductPage(product: suggestion)
-                    ));*//*
+                   setState(() {
+                     searchCtrl.text = suggestion['name']!;
+                     getBusiness(suggestion['name']!,selectCategory.join(","),userRadius);
+                   });
                   },
-                )*/
+                )
 
-                 TextField(
+               /*  TextField(
                   controller: searchCtrl,
                   keyboardType: TextInputType.text,
                   onChanged: (value){
-                    getBusiness(value,selectCategory.join(","));
+
                   },
                   onSubmitted: (value){
-                    getBusiness(value,selectCategory.join(","));
+                    getBusiness(value,selectCategory.join(","),userRadius);
                   },
 
                   decoration: InputDecoration(
@@ -417,7 +449,7 @@ class _HomeView extends State<HomeView> {
                     contentPadding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
                     fillColor: Color(0xFFF8F9FA),
                   ),
-                ),
+                ),*/
               ),
             ),
           ),
@@ -888,6 +920,36 @@ class _HomeView extends State<HomeView> {
     );
   }
 
+  void getAllSearchResult(String value)
+  {
+
+    ObjectController controller = ObjectController();
+    SearchItemFavRequest requestModel = SearchItemFavRequest(value);
+    controller.searchQueryItem(requestModel).then((value){
+      response = value;
+      if(!response.error!)
+        {
+          getSearchData(response);
+        }
+      
+    });
+  }
+  List<String>getSearchData(SearchResponse response)
+  {
+    List<String>data = [];
+
+    if(response.data!=null)
+      {
+        for(int i=0; i<response.data!.length; i++)
+        {
+          data.add(response.data![i]);
+        }
+      }
+    
+
+    return data;
+  }
+
 
   String getDistance(String lat,String lon)
   {
@@ -908,8 +970,36 @@ class BackendService {
   static Future<List<Map<String, String>>> getSuggestions(String query) async {
     await Future<void>.delayed(Duration(seconds: 1));
 
-    return List.generate(3, (index) {
-      return {'name': query + index.toString(), 'price': Random().nextInt(100).toString()};
+    return List.generate(0, (index) {
+      return {'name': "Sanjay", 'price': "10"};
     });
   }
 }
+
+class CitiesService {
+  static final List<String> cities = [
+    'Beirut',
+    'Damascus',
+    'San Fransisco',
+    'Rome',
+    'Los Angeles',
+    'Madrid',
+    'Bali',
+    'Barcelona',
+    'Paris',
+    'Bucharest',
+    'New York City',
+    'Philadelphia',
+    'Sydney',
+  ];
+
+  static List<String> getSuggestions(String query) {
+    List<String> matches = <String>[];
+    matches.addAll(cities);
+
+    matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
+    return matches;
+  }
+}
+
+

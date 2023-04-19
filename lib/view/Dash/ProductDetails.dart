@@ -438,7 +438,7 @@ class _ProductDetails extends State<ProductDetails> {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
           '#ff6666', 'Cancel', true, ScanMode.QR);
       print(barcodeScanRes);
-      AppUtil.showToast(barcodeScanRes, "i");
+      // AppUtil.showToast(barcodeScanRes, "i");
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }

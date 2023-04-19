@@ -32,6 +32,7 @@ class _MaimSplashView extends State<MaimSplashView> {
       userId = sp.getString(saveUserID)!=null ? sp.getString(saveUserID)!: "";
 
       sp.remove("filterList");
+      sp.remove("radius");
 
     });
 

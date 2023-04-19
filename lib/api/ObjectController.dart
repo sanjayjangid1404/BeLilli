@@ -9,10 +9,12 @@ import '../Model/RequestModel/BusinessDetailsRequest.dart';
 import '../Model/RequestModel/LoginRequest.dart';
 import '../Model/RequestModel/RegisterRequestModel.dart';
 import '../Model/RequestModel/RemoveFavRequest.dart';
+import '../Model/RequestModel/SearchItemFavRequest.dart';
 import '../Model/ResponseModel/BusinessDetailsResponse.dart';
 import '../Model/ResponseModel/LoginResponse.dart';
 import '../Model/ResponseModel/RedeemOfferResponse.dart';
 import '../Model/ResponseModel/RegisterResponse.dart';
+import '../Model/ResponseModel/SearchResponse.dart';
 import '../Model/ResponseModel/SimpleResponse.dart';
 import '../appcomman/AppUtil.dart';
 import 'ApiURL.dart';
@@ -272,6 +274,37 @@ class ObjectController
     } else {
       final SimpleResponse responseModel;
       responseModel = SimpleResponse.fromJson(json.decode(response.body));
+      return responseModel;
+      throw Exception('Failed to load data!');
+    }
+  }
+
+
+  searchQueryItem(SearchItemFavRequest requestModel) async {
+
+    AppUtil.appLogs("--------------Parameter---------------");
+    AppUtil.appLogs(requestModel.toJson());
+    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=searchbusinesses"), body: requestModel.toJson());
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      AppUtil.appLogs("--------------Response---------------");
+      AppUtil.appLogs(json.decode(response.body));
+      int statusCode = response.statusCode;
+      AppUtil.appLogs("--------------Status Code---------------");
+      AppUtil.appLogs(statusCode);
+      final SearchResponse responseModel;
+      if (statusCode == 200 || response.statusCode == 400) {
+        responseModel = SearchResponse.fromJson(json.decode(response.body));
+        return responseModel;
+      } else {
+        responseModel = SearchResponse.fromJson(json.decode(response.body));
+        return responseModel;
+        throw Exception('Failed to load data!');
+        // return loginResponse;
+
+      }
+    } else {
+      final SearchResponse responseModel;
+      responseModel = SearchResponse.fromJson(json.decode(response.body));
       return responseModel;
       throw Exception('Failed to load data!');
     }

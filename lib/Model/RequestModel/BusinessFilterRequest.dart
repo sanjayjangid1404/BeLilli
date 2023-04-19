@@ -1,7 +1,7 @@
 
 class BusinessFilterRequest {
 
-  String pagecount;
+  String radius;
   String limit;
   String category_ids;
   String latitude;
@@ -13,7 +13,7 @@ class BusinessFilterRequest {
 
   BusinessFilterRequest(
       this.longitude,this.category_ids,this.search_key,
-      this.pagecount,this.limit,this.latitude,this.userId);
+      this.radius,this.limit,this.latitude,this.userId);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> map = {
@@ -22,7 +22,7 @@ class BusinessFilterRequest {
       'latitude': latitude.trim(),
       'category_ids': category_ids.trim(),
       'longitude': longitude.trim(),
-      // 'pagecount': pagecount.trim(),
+      'radius': radius.trim(),
       'search_key': search_key.trim(),
       'user_id': userId.trim(),
 

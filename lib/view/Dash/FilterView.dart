@@ -177,7 +177,7 @@ class _FilterView extends State<FilterView> {
                       Slider(
                         value: distanceValue,
                         min: 0,
-                        max: 5,
+                        max: 10,
                         divisions: 100,
                         activeColor: Color(0xFF4B40F0),
                         thumbColor: redColor,
@@ -277,6 +277,7 @@ class _FilterView extends State<FilterView> {
                           SharedPreferences sp = await SharedPreferences.getInstance();
 
                           sp.setStringList("filterList", selectCategory);
+                          sp.setString("radius", distanceValue.toString());
 
                           Navigator.pop(context);
                           NavigationService.instance.navigatePopAndPushNamed("/dashBoard");
@@ -318,4 +319,9 @@ class _FilterView extends State<FilterView> {
       ),
     );
   }
+}
+
+class FilterData{
+
+  String? categoryId;
 }
