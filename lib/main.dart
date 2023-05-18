@@ -1,5 +1,10 @@
+
+import 'dart:io';
+
 import 'package:belilli/appcomman/AppFont.dart';
 import 'package:belilli/view/Dash/DashBoard.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:belilli/view/Dash/SearchFilterHome.dart';
 import 'package:belilli/view/Dash/TakeOfferView.dart';
 import 'package:belilli/view/MainSplashView.dart';
 import 'package:belilli/view/profile/AccountView.dart';
@@ -24,12 +29,17 @@ import 'view/setting/SettingView.dart';
 
 void main() {
 
+  if(Platform.isAndroid) {
+    InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
+  }
   SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
     statusBarIconBrightness: Brightness.light, // this will change the brightness of the icons
     statusBarColor: backgroundColor, // or any color you want
   ));
   WidgetsFlutterBinding.ensureInitialized();
+
+
   runApp(const MyApp());
 }
 
@@ -51,6 +61,9 @@ class _MyApp extends State<MyApp> {
     super.initState();
 
     SharedPreferences.getInstance().then((sp) {
+      SystemChannels.textInput.invokeMethod('TextInput.hide');
+
+      setState((){});
 
 
     });
@@ -76,6 +89,7 @@ class _MyApp extends State<MyApp> {
         "/enjoy1": (BuildContext context) =>  const Enjoy1(),
         "/dashBoard": (BuildContext context) => const DashBoard(),
         "/accountView": (BuildContext context) => const AccountView(),
+
         "/filterView": (BuildContext context) => const FilterView(),
         "/profileView": (BuildContext context) => const ProfileView(),
         "/settings": (BuildContext context) => const SettingView(),
@@ -84,6 +98,7 @@ class _MyApp extends State<MyApp> {
         "/accountDetails": (BuildContext context) => const AccountDetailsView(),
         "/takeOfferView": (BuildContext context) => const TakeOfferView(),
         "/cancelSubscription": (BuildContext context) => const CancelSubscription(),
+        "/searchFilterHome": (BuildContext context) => const SearchFilterHome(),
       },
       home: const MaimSplashView(),
     );

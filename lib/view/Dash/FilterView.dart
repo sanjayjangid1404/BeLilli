@@ -35,10 +35,7 @@ class _FilterView extends State<FilterView> {
 
 
       selectCategory = sp.getStringList("filterList")!=null ? sp.getStringList("filterList")!:[];
-
-
-
-
+      
       if(fromPage=="home")
       {
 
@@ -177,7 +174,7 @@ class _FilterView extends State<FilterView> {
                       Slider(
                         value: distanceValue,
                         min: 0,
-                        max: 10,
+                        max: 5,
                         divisions: 100,
                         activeColor: Color(0xFF4B40F0),
                         thumbColor: redColor,
@@ -276,11 +273,10 @@ class _FilterView extends State<FilterView> {
 
                           SharedPreferences sp = await SharedPreferences.getInstance();
 
-                          sp.setStringList("filterList", selectCategory);
-                          sp.setString("radius", distanceValue.toString());
+                          // sp.setStringList("filterList", selectCategory);
+                          // sp.setString("radius", distanceValue.toString());
 
-                          Navigator.pop(context);
-                          NavigationService.instance.navigatePopAndPushNamed("/dashBoard");
+                         NavigationService.instance.navigateToArgVal("/searchFilterHome", distanceValue.toString(), selectCategory);
                           setState(()  {
                             print(selectCategory);
                           });

@@ -30,15 +30,15 @@ import '../../api/ObjectController.dart';
 import '../../appcomman/AppRoute.dart';
 import '../../skeleton_widgets/skeleton_view.dart';
 
-class HomeView extends StatefulWidget{
-  const HomeView({super.key});
+class SearchFilterHome extends StatefulWidget{
+  const SearchFilterHome({super.key});
 
 
   @override
   State<StatefulWidget> createState()=>_HomeView();
 }
 
-class _HomeView extends State<HomeView> {
+class _HomeView extends State<SearchFilterHome> {
 
   CategoryListResponse categoryListResponse = CategoryListResponse();
   TextEditingController searchCtrl = TextEditingController();
@@ -48,6 +48,7 @@ class _HomeView extends State<HomeView> {
   String userLon = "0";
   String userRadius = "0";
   double position  = 0;
+  String fromPage = "";
   List<bool>favItemValue = [];
   BusinessResponse businessResponse = BusinessResponse();
   FeaturedListResponse featuredListResponse = FeaturedListResponse();
@@ -81,6 +82,14 @@ class _HomeView extends State<HomeView> {
   List<String>categoryName =[];
   List<String>categoryId =[];
 
+
+
+  Future<bool> _onWillPop() async {
+    Navigator.pop(context);
+    NavigationService.instance.navigatePopAndPushNamed("/dashBoard");
+    return true; //
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -91,7 +100,7 @@ class _HomeView extends State<HomeView> {
       userLon = sp.getString(saveUserLon)!=null ? sp.getString(saveUserLon)! : "0";
       userLat = sp.getString(saveUserLat)!=null ? sp.getString(saveUserLat)! : "0";
       userRadius = sp.getString("radius")!=null ? sp.getString("radius")! : "0";
-      selectCategory = sp.getStringList("filterList")!=null ? sp.getStringList("filterList")!:[];
+      // selectCategory = sp.getStringList("filterList")!=null ? sp.getStringList("filterList")!:[];
       getUserCurrentLocation().then((value) async {
 
         SharedPreferences sp = await SharedPreferences.getInstance();
@@ -102,10 +111,18 @@ class _HomeView extends State<HomeView> {
         userLat = value.latitude.toString();
         userLon = value.longitude.toString();
 
-        getAllCategory();
+        // getAllCategory();
+        getBusiness("",selectCategory.join(","),fromPage);
+        searchNode.unfocus();
+
+        setState(() {
+
+        });
+
+
         print(value);
       });
-      FocusManager.instance.primaryFocus?.unfocus();
+
 
       setState(() {
       });
@@ -208,47 +225,7 @@ class _HomeView extends State<HomeView> {
     });
   }
 
-  void getAllCategory()
-  {
-    ArrayController controller = ArrayController();
 
-    setState(() {
-      isLoading=  true;
-    });
-
-    controller.getAllCategory().then((value){
-
-      categoryListResponse = value!;
-
-      if(categoryListResponse.error==false && categoryListResponse.data!=null)
-        {
-
-          setState(() {
-            isCategoryFound = false;
-          });
-          for(int i=0; i<categoryListResponse.data!.length; i++)
-            {
-              categoryName.add(categoryListResponse.data![i].name.toString());
-              categoryId.add(categoryListResponse.data![i].id.toString());
-            }
-
-          getBusiness("",selectCategory.join(","),userRadius);
-
-        }
-
-      else
-      {
-        setState(() {
-          isCategoryFound=  true;
-        });
-      }
-
-
-      setState(() {
-        isLoading=  false;
-      });
-    });
-  }
 
 
   Future<Position> getUserCurrentLocation() async {
@@ -261,74 +238,76 @@ class _HomeView extends State<HomeView> {
   }
   @override
   Widget build(BuildContext context) {
-   return Scaffold(
-     body: SafeArea(
-       child: Container(
-         height: double.infinity,
-         width: double.infinity,
-         color: backgroundColor,
-         child: Stack(
-           children: [
-             RefreshIndicator(
 
-               onRefresh: () {
+    final argument = ModalRoute.of(context)?.settings.arguments as Map;
 
-                return _refreshBusiness(context);
+    fromPage = argument["arg"];
 
-               },
-               child: SingleChildScrollView(
-                 child: Column(
-                   children: [
-                     headBar(),
-                   isLoading || isDataLoading ?
-                       Center(child: CircularProgressIndicator(color: Colors.white,),):
-                   businessResponse.data!=null && businessResponse.data!.isNotEmpty?
-                   Column(
+    selectCategory=  argument["data"];
+
+
+   return WillPopScope(
+     onWillPop: _onWillPop,
+     child: Scaffold(
+       body: SafeArea(
+         child: Container(
+           height: double.infinity,
+           width: double.infinity,
+           color: backgroundColor,
+           child: Stack(
+             children: [
+               RefreshIndicator(
+
+                 onRefresh: () {
+
+                  return _refreshBusiness(context);
+
+                 },
+                 child: SingleChildScrollView(
+                   child: Column(
                      children: [
-                       selectCategory.isEmpty ? isLoading ?SkeletonView(height: 120,) :categoryWidget():SizedBox(),
-                       SizedBox(height: searchCtrl.text.isEmpty ? 35 : 10,),
+                       headBar(),
+                     isLoading || isDataLoading ?
+                         Center(child: CircularProgressIndicator(color: Colors.white,),):
+                     businessResponse.data!=null && businessResponse.data!.isNotEmpty?
+                     Column(
+                       children: [
 
-                       Padding(
-                         padding: const EdgeInsets.symmetric(horizontal: 17.0),
-                         child: Row(
-                           children: [
-                             Text(searchCtrl.text.isEmpty ? "Awesome places near me" : "Search results",style: TextStyle(fontSize: 18,color: Colors.white),),
-                             SizedBox(width: 10,),
-                             Visibility(
-                               visible: searchCtrl.text.isEmpty ? true : false,
-                               child: Container(
-                                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(8),color: Colors.white),
-                                 padding: EdgeInsets.symmetric(horizontal: 10,vertical: 7),
-                                 child: Text("TN1",style: TextStyle(fontSize: 15,color: Color(0xFFD34D35)),),
-                               ),
-                             )
-                           ],
+                         Padding(
+                           padding: const EdgeInsets.symmetric(horizontal: 17.0),
+                           child: Row(
+                             children: [
+                               Text("Search results",style: TextStyle(fontSize: 18,color: Colors.white),),
+                               SizedBox(width: 10,),
+
+                             ],
+                           ),
                          ),
-                       ),
-                       productList(),
-                     ],
-                   ) :isDataNotFound ?  Column(
-                     children: [
-                       SizedBox(height: 67,),
-                       notHaveService()
-                     ],
-                   ) : Center(child: CircularProgressIndicator(color: Colors.white,),),
+                         productList(),
+                       ],
+                     ) :isDataNotFound ?  Column(
+                       children: [
+                         SizedBox(height: 67,),
+                         notHaveService()
+                       ],
+                     ) : Center(child: CircularProgressIndicator(color: Colors.white,),),
 
-                   ],
+                     ],
+                   ),
                  ),
                ),
-             ),
-             isAdding ?Container(
-                 color: loadBackgroundColor.withOpacity(0.7),
-                 width: double.infinity,
-                 height: double.infinity,
-                 child: SpinKitCircle(
-                   color: loaderColor,
-                   size: 70.0,
-                   duration: Duration(milliseconds: 1200),
-                 ))
-                 : Stack()
-           ],
+               isAdding ?Container(
+                   color: loadBackgroundColor.withOpacity(0.7),
+                   width: double.infinity,
+                   height: double.infinity,
+                   child: SpinKitCircle(
+                     color: loaderColor,
+                     size: 70.0,
+                     duration: Duration(milliseconds: 1200),
+                   ))
+                   : Stack()
+             ],
+           ),
          ),
        ),
      ),
@@ -338,14 +317,23 @@ class _HomeView extends State<HomeView> {
   Widget headBar()
   {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 17,vertical: 28),
+      padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 28),
       child: Row(
 
         children: [
+          InkWell(
+            onTap: (){
+              _onWillPop();
+            },
+            child: Expanded(
+                flex: 1,
+                child: Icon(Icons.arrow_back,color: Colors.white,)),
+          ),
+
           Expanded(
-            flex: 7,
+            flex: 9,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 0.0,vertical: 0),
+              padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 0),
               child: SizedBox(
                 height: 40,
                 child: TypeAheadField(
@@ -355,9 +343,8 @@ class _HomeView extends State<HomeView> {
                   ),suggestionsBoxVerticalOffset: 0,
 
                   textFieldConfiguration: TextFieldConfiguration(
-                      autofocus: true,
-                      controller: searchCtrl,
                       focusNode: searchNode,
+                      controller: searchCtrl,
                       onChanged: (value){
                         setState(() {
                           if(value.length>2) {
@@ -415,42 +402,11 @@ class _HomeView extends State<HomeView> {
                    });
                   },
                 )
+
               ),
             ),
           ),
 
-          Expanded(
-              flex: 3,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(width: 10,),
-              InkWell(
-                  onTap: (){
-                    if(categoryListResponse.data!=null)
-                    {
-                      NavigationService.instance.navigateToArgValueVal("/filterView","home",categoryListResponse,null);
-                    }
-                    else
-                    {
-                      AppUtil.showToast("Please wait...", "i");
-                    }
-                  },
-                  child: Padding(
-                    padding:  EdgeInsets.symmetric(horizontal: AppUtil.fullWidth(context)*0.01),
-                    child: ImageIcon(AssetImage("images/filter.png"),size: 27,color: Color(0xFFe6543a),),
-                  )),
-              SizedBox(width: 10,),
-              InkWell(
-                  onTap: (){
-                    NavigationService.instance.navigateTo("/accountView");
-                  },
-                  child: Padding(
-                    padding:  EdgeInsets.symmetric(horizontal: AppUtil.fullWidth(context)*0.01),
-                    child: ImageIcon(AssetImage("images/profile.png"),size: 27,color: Color(0xFFe6543a),),
-                  ))
-            ],
-          ))
         ],
       ),
     );
@@ -482,43 +438,35 @@ class _HomeView extends State<HomeView> {
             itemBuilder: (context, index) {
             return Column(
               children: [
-                InkWell(
-                  onTap:(){
-                    List<String>selectCategory = [];
+                Padding(
+                  padding: EdgeInsets.only(right: 7,bottom: 7),
+                  child: Container(
+                    height: 90,
+                    width: 90,
 
-                    selectCategory.add(categoryListResponse.data![index].id.toString());
-                    NavigationService.instance.navigateToArgVal("/searchFilterHome", "0", selectCategory);
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.only(right: 7,bottom: 7),
-                    child: Container(
-                      height: 90,
-                      width: 90,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(12),
 
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(12),
-
-                      ),
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: CachedNetworkImage(
-                            imageUrl: imageURL+categoryListResponse.data![index].banner.toString(),
-                            fit: BoxFit.fill,
-                            height:150,
-                            width: double.infinity,
-
-                            placeholder: (context, url) => SkeletonView(),
-                            errorWidget: (context, url, error) => Center(
-                              child: Center(child: Icon(Icons.error)),
-                            ),
-                            fadeOutDuration: Duration(
-                              seconds: 2,
-                            ),
-                          ),
-
-                        /*Image.asset("images/image2.png",height: 90,width: 90,fit: BoxFit.cover,)*/),
                     ),
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: CachedNetworkImage(
+                          imageUrl: imageURL+categoryListResponse.data![index].banner.toString(),
+                          fit: BoxFit.fill,
+                          height:150,
+                          width: double.infinity,
+
+                          placeholder: (context, url) => SkeletonView(),
+                          errorWidget: (context, url, error) => Center(
+                            child: Center(child: Icon(Icons.error)),
+                          ),
+                          fadeOutDuration: Duration(
+                            seconds: 2,
+                          ),
+                        ),
+
+                      /*Image.asset("images/image2.png",height: 90,width: 90,fit: BoxFit.cover,)*/),
                   ),
                 ),
 
@@ -735,7 +683,6 @@ class _HomeView extends State<HomeView> {
     return Container(
       color: Colors.white,
       width: double.infinity,
-
       padding: EdgeInsets.only(left: 17),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -749,82 +696,76 @@ class _HomeView extends State<HomeView> {
           child: ListView.builder(
             itemCount: featuredListResponse.data!=null ? featuredListResponse.data!.length : 0,
             shrinkWrap: true,
-            physics: BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             itemBuilder: (context, index) {
             return SizedBox(
                 width:247,
               child: Padding(
                 padding: const EdgeInsets.only(right: 15.0),
-                child: InkWell(
-                  onTap:(){
-                    NavigationService.instance.navigateToArgVal("/productDetails","product",featuredListResponse.data![index].id.toString());
-                  },
-                  child: Column(
-                    children: [
-                      ClipRRect(
-                          borderRadius: BorderRadius.only(topRight: Radius.circular(12),topLeft: Radius.circular(12)),
-                          child: CachedNetworkImage(
-                            imageUrl: imageURL+featuredListResponse.data![index].image.toString(),
-                            fit: BoxFit.fill,
-                            height: 140,
-                            width: 247,
-                            placeholder: (context, url) => SkeletonView(),
-                            errorWidget: (context, url, error) => Center(
-                              child: Center(child: Icon(Icons.error)),
+                child: Column(
+                  children: [
+                    ClipRRect(
+                        borderRadius: BorderRadius.only(topRight: Radius.circular(12),topLeft: Radius.circular(12)),
+                        child: CachedNetworkImage(
+                          imageUrl: imageURL+featuredListResponse.data![index].image.toString(),
+                          fit: BoxFit.fill,
+                          height: 140,
+                          width: 247,
+                          placeholder: (context, url) => SkeletonView(),
+                          errorWidget: (context, url, error) => Center(
+                            child: Center(child: Icon(Icons.error)),
+                          ),
+                          fadeOutDuration: Duration(
+                            seconds: 2,
+                          ),
+                        )),
+                    Container(
+                      decoration:BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xffDDDDDD),
+                            blurRadius: 6.0,
+                            spreadRadius: 1.0,
+                            offset: Offset(0.0, 0.0),
+                          )
+                        ],
+
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(12),
+                            bottomRight: Radius.circular(12),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              flex:1,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(featuredListResponse.data![index].businessName.toString(),
+                                    maxLines:1,
+                                    overflow:TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: 12,color: greyColor),),
+                                  SizedBox(height: 6,),
+                                  Text(featuredListResponse.data![index].categoryName.toString(),style: TextStyle(fontSize: 11,color: redColor),),
+                                ],
+                              ),
                             ),
-                            fadeOutDuration: Duration(
-                              seconds: 2,
-                            ),
-                          )),
-                      Container(
-                        decoration:BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color(0xffDDDDDD),
-                              blurRadius: 6.0,
-                              spreadRadius: 1.0,
-                              offset: Offset(0.0, 0.0),
+                            Expanded(
+                              flex:1,
+                              child: Align(
+                                  alignment: Alignment.topRight,
+                                  child: Text("1.2 miles away",style: TextStyle(fontSize: 12,color: greyColor),)),
                             )
                           ],
-
-                          borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(12),
-                              bottomRight: Radius.circular(12),
-                          ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                flex:1,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(featuredListResponse.data![index].businessName.toString(),
-                                      maxLines:1,
-                                      overflow:TextOverflow.ellipsis,
-                                      style: TextStyle(fontSize: 12,color: greyColor),),
-                                    SizedBox(height: 6,),
-                                    Text(featuredListResponse.data![index].categoryName.toString(),style: TextStyle(fontSize: 11,color: redColor),),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                flex:1,
-                                child: Align(
-                                    alignment: Alignment.topRight,
-                                    child: Text("1.2 miles away",style: TextStyle(fontSize: 12,color: greyColor),)),
-                              )
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
+                      ),
+                    )
+                  ],
                 ),
               ),
             );
@@ -942,7 +883,7 @@ class _HomeView extends State<HomeView> {
   }
 
   Future<void> _refreshBusiness(BuildContext context) async {
-    return getAllCategory();
+    return getBusiness(searchCtrl.text.toString(), categoryId.join(","), userRadius);
   }
 }
 

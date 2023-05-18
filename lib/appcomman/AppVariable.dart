@@ -12,3 +12,7 @@ String saveLocation = "location";
 String saveWeekly = "weekly";
 String saveMonthly= "monthly";
 String saveNever= "never";
+String appleApiKey = "appl_api_key";
+String googleApiKey = "googl_api_key";
+String amazonApiKey = "amazon_api_key";
+String entitlement = "premium";

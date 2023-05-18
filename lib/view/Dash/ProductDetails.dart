@@ -18,7 +18,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../Model/RequestModel/AddFavouriteRequest.dart';
 import '../../Model/RequestModel/BusinessDetailsRequest.dart';
 import '../../Model/RequestModel/RemoveFavRequest.dart';
-import '../../Model/RequestModel/SimpleRequest.dart';
 import '../../Model/ResponseModel/BusinessDetailsResponse.dart';
 import '../../Model/ResponseModel/RedeemOfferResponse.dart';
 import '../../Model/ResponseModel/SimpleResponse.dart';
