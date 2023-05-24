@@ -4,15 +4,28 @@ import 'package:belilli/Model/ResponseModel/LoginResponse.dart';
 import 'package:belilli/api/ObjectController.dart';
 import 'package:belilli/appcomman/AppColor.dart';
 import 'package:belilli/appcomman/AppUtil.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:belilli/appcomman/AppVariable.dart';
 import 'package:belilli/view/SplashScreen.dart';
 import 'package:belilli/window/RegisterView.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../view/Dash/DashBoard.dart';
+import '../view/Dialog.dart';
 import 'ForgetPassword.dart';
+
+
+enum PermissionGroup {
+  /// Android: Fine and Coarse Location
+  /// iOS: CoreLocation - Always
+  locationAlways,
+
+  /// Android: Fine and Coarse Location
+  /// iOS: CoreLocation - WhenInUse
+}
 
 class LoginView extends StatefulWidget{
   const LoginView({super.key});
@@ -28,6 +41,9 @@ class _LoginView extends State<LoginView> {
   TextEditingController password = TextEditingController();
   bool isLoading = false;
   bool     _passwordVisible = false;
+   Permission? _permission ;
+
+
 
 
   Future<bool> _onWillPop() async {
@@ -198,7 +214,7 @@ class _LoginView extends State<LoginView> {
                             SizedBox(height: 25,),
 
                             InkWell(
-                              onTap: (){
+                              onTap: ()  async {
 
                                 if(email.text.toString().trim().isEmpty)
                                 {
@@ -215,7 +231,6 @@ class _LoginView extends State<LoginView> {
 
                                 else
                                 {
-
                                   setState(() {
                                     isLoading=  true;
                                   });
@@ -254,10 +269,7 @@ class _LoginView extends State<LoginView> {
                                       isLoading=  false;
                                     });
                                   });
-
                                 }
-
-
                               },
                               child: Container(
                                 width: double.infinity,
@@ -312,5 +324,14 @@ class _LoginView extends State<LoginView> {
 
       ),
     );
+  }
+
+  Future<Position> getUserCurrentLocation() async {
+    await Geolocator.requestPermission().then((value){
+    }).onError((error, stackTrace) async {
+      await Geolocator.requestPermission();
+      print("ERROR"+error.toString());
+    });
+    return await Geolocator.getCurrentPosition();
   }
 }

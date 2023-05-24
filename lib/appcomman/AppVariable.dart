@@ -16,3 +16,5 @@ String appleApiKey = "appl_api_key";
 String googleApiKey = "googl_api_key";
 String amazonApiKey = "amazon_api_key";
 String entitlement = "premium";
+String appName = "BeLilli";
+String userLocationBool = "locationCheck";

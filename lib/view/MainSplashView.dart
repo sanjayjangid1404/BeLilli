@@ -5,9 +5,11 @@ import 'package:belilli/view/SplashScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Dash/DashBoard.dart';
+import 'LocationPermission.dart';
 
 class  MaimSplashView extends StatefulWidget
 {
@@ -40,16 +42,35 @@ class _MaimSplashView extends State<MaimSplashView> {
 
     });
 
-    Future.delayed(Duration(milliseconds: 2000), () {
+    Future.delayed(Duration(milliseconds: 2000), () async {
 
       if(userId.isEmpty)
         {
-          Navigator.pushAndRemoveUntil(
+          final status = await Permission.locationWhenInUse.status;
+          if(status==PermissionStatus.granted)
+
+            {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  SplashScreen()),
+                  ModalRoute.withName("/splashView")
+
+              );
+            }
+
+          else {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) =>  LocationPermission()),
+              ModalRoute.withName("/locationPermission")
+
+          );/* Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) =>  SplashScreen()),
               ModalRoute.withName("/splashView")
 
-          );
+          );*/
+          }
         }
       else
       {

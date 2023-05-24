@@ -53,6 +53,7 @@ class _HomeView extends State<HomeView> {
   FeaturedListResponse featuredListResponse = FeaturedListResponse();
   bool isLoading = false;
   bool isDataLoading = false;
+  bool isUserLocation = false;
   bool isAdding = false;
   bool isFeaturing = false;
   bool isDataNotFound = false;
@@ -91,20 +92,30 @@ class _HomeView extends State<HomeView> {
       userLon = sp.getString(saveUserLon)!=null ? sp.getString(saveUserLon)! : "0";
       userLat = sp.getString(saveUserLat)!=null ? sp.getString(saveUserLat)! : "0";
       userRadius = sp.getString("radius")!=null ? sp.getString("radius")! : "0";
+      isUserLocation = sp.getBool(userLocationBool)!=null ? sp.getBool(userLocationBool)! : false;
       selectCategory = sp.getStringList("filterList")!=null ? sp.getStringList("filterList")!:[];
-      getUserCurrentLocation().then((value) async {
 
-        SharedPreferences sp = await SharedPreferences.getInstance();
+      if(isUserLocation)
+        {
+          getUserCurrentLocation().then((value) async {
 
-        sp.setString(saveUserLat, value.latitude.toString());
-        sp.setString(saveUserLon, value.longitude.toString());
+            SharedPreferences sp = await SharedPreferences.getInstance();
 
-        userLat = value.latitude.toString();
-        userLon = value.longitude.toString();
+            sp.setString(saveUserLat, value.latitude.toString());
+            sp.setString(saveUserLon, value.longitude.toString());
 
+            userLat = value.latitude.toString();
+            userLon = value.longitude.toString();
+
+
+            print(value);
+          });
+        }
+      else
+      {
         getAllCategory();
-        print(value);
-      });
+      }
+
       FocusManager.instance.primaryFocus?.unfocus();
 
       setState(() {

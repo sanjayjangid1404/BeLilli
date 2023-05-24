@@ -29,16 +29,19 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(height: 20),
-          Text(
-            "${widget.title}",
-            style: TextStyle(
-              fontSize: 18.0,
-              fontFamily: primaryFont,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6.0),
+            child: Text(
+              "${widget.title}",
+              style: TextStyle(
+                fontSize: 18.0,
+                fontFamily: primaryFont,
+              ),
             ),
           ),
           SizedBox(height: 15),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Text("${widget.description}",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14,color: Colors.black.withOpacity(0.7)),),
@@ -53,7 +56,6 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
             child: InkWell(
               highlightColor: Colors.grey[200],
               onTap: () {
-
                 Navigator.pop(context);
 
                 widget.onTap();
@@ -61,7 +63,7 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
               },
               child: Center(
                 child: Text(
-                  "Yes",
+                  "Allow",
                   style: TextStyle(
                     fontSize: 18.0,
                     color: Theme.of(context).primaryColor,

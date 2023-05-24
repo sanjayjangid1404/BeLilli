@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../appcomman/AppColor.dart';
 import '../../appcomman/AppRoute.dart';
+import '../Dialog.dart';
 
 class SettingView extends StatefulWidget{
   const SettingView({super.key});
@@ -104,15 +105,38 @@ class _SettingView extends State<SettingView> {
                       contentPadding: EdgeInsets.zero,
                       inactiveThumbColor: Color(0xFFE87A67),
                       inactiveTrackColor: Colors.white,
-                      onChanged: (bool value) async{
+                      onChanged: (bool value) async {
 
-                        SharedPreferences sp = await SharedPreferences.getInstance();
+                        if(value) {
+                          showDialog(
+                            context: context,
+                            builder: (_) => CustomAlertDialog(
+                              title: 'Location Permission',
+                              description: 'This app requires your location while app in use so we can show nearby stores to your location.',
+                              onTap: () async {
+                                SharedPreferences sp = await SharedPreferences.getInstance();
 
 
-                        setState(()  {
-                          location = value;
-                          sp.setBool(saveLocation, location);
-                        });
+                                setState(()  {
+                                  location = value;
+                                  sp.setBool(saveLocation, location);
+                                });
+
+                            },)
+                        );
+                        }
+                        else
+                        {
+                          SharedPreferences sp = await SharedPreferences.getInstance();
+
+
+                          setState(()  {
+                            location = value;
+                            sp.setBool(saveLocation, location);
+                          });
+                        }
+
+
                       },
                     ),
                     SizedBox(height: 20,),
