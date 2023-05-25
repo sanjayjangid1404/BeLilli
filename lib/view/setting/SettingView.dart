@@ -21,6 +21,7 @@ class _SettingView extends State<SettingView> {
   bool weekly = false;
   bool monthly = false;
   bool never = false;
+  String userId = "";
 
   @override
   void initState() {
@@ -32,6 +33,7 @@ class _SettingView extends State<SettingView> {
       weekly = sp.getBool(saveWeekly)!=null ? sp.getBool(saveWeekly)!:false;
       monthly = sp.getBool(saveMonthly)!=null ? sp.getBool(saveMonthly)!:false;
       never = sp.getBool(saveNever)!=null ? sp.getBool(saveNever)!:false;
+      userId= sp.getString(saveUserID)!=null ? sp.getString(saveUserID)!: "";
 
 
       setState(() {
@@ -86,13 +88,14 @@ class _SettingView extends State<SettingView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: 38,),
+                    userId =="7" ? SizedBox() :
                     Text("Location",style: TextStyle(fontSize: 16,color: Colors.white),),
 
                     SizedBox(height: 7,),
-                    Text("We would love to know your location so we can show \nyou rewards closest to you. Would that be ok?",
+                    userId =="7" ? SizedBox() : Text("We would love to know your location so we can show \nyou rewards closest to you. Would that be ok?",
                       style: TextStyle(fontSize: 8.4,color: Color(0xFFdbd3f4)),),
                     SizedBox(height: 19,),
-                    SwitchListTile(
+                    userId =="7" ? SizedBox() : SwitchListTile(
                       title: Text('Turn location on',style: TextStyle(
                           color: Colors.white,
 
@@ -109,21 +112,21 @@ class _SettingView extends State<SettingView> {
 
                         if(value) {
                           showDialog(
-                            context: context,
-                            builder: (_) => CustomAlertDialog(
-                              title: 'Location Permission',
-                              description: 'This app requires your location while app in use so we can show nearby stores to your location.',
-                              onTap: () async {
-                                SharedPreferences sp = await SharedPreferences.getInstance();
+                              context: context,
+                              builder: (_) => CustomAlertDialog(
+                                title: 'Location Permission',
+                                description: 'This app collects location data to enable nearby stores, best Offer  in Shop, and nearest restaurants even when the app is closed or not in use.” If you extend permitted usage to ads, also include:',
+                                onTap: () async {
+                                  SharedPreferences sp = await SharedPreferences.getInstance();
 
 
-                                setState(()  {
-                                  location = value;
-                                  sp.setBool(saveLocation, location);
-                                });
+                                  setState(()  {
+                                    location = value;
+                                    sp.setBool(saveLocation, location);
+                                  });
 
-                            },)
-                        );
+                                },)
+                          );
                         }
                         else
                         {

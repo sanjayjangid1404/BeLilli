@@ -26,8 +26,8 @@ class Enjoy1 extends StatefulWidget{
 class _Enjoy1 extends State<Enjoy1> {
 
 
-  String testID = 'android.test.purchased';
-  List<String> testID2 = ['android.test.purchased'];
+  String testID = 'one_month_subscription';
+  List<String> testID2 = ['one_month_subscription'];
   final InAppPurchase _iap = InAppPurchase.instance;
 
   bool _isAvailable = false;
@@ -49,7 +49,7 @@ class _Enjoy1 extends State<Enjoy1> {
 
    bool _kAutoConsume = true;
 
-   String _kConsumableId = 'android.test.purchased';
+   String _kConsumableId = 'one_month_subscription';
    // String _kUpgradeId = 'upgrade';
    // String _kSilverSubscriptionId = 'subscription_silver';
    // String _kGoldSubscriptionId = 'subscription_gold';
@@ -209,6 +209,7 @@ class _Enjoy1 extends State<Enjoy1> {
                               if(_products.isNotEmpty)
                                 {
                                   print("erwefrqgwtyg"+_products[0].title);
+                                  print("erwefrqgwtyg"+_products[0].id);
                                   _startPurchase(_products[0]);
                                 }
                               else

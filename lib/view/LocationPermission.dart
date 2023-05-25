@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'Dialog.dart';
 import 'SplashScreen.dart';
 
 class LocationPermission extends StatefulWidget{
@@ -81,24 +82,38 @@ class _LocationPermission extends State<LocationPermission>
                         onTap: () async {
 
 
+                          showDialog(
+                              context: context,
+                              builder: (_) => CustomAlertDialog(
+                                title: 'Location Permission',
+                                description: 'This app collects location data to enable nearby stores, best Offer  in Shop, and nearest restaurants even when the app is closed or not in use.” If you extend permitted usage to ads, also include:',
+                                onTap: () async {
+                                  Permission.locationWhenInUse.request().then((value) async {
+
+                                    if(value.isGranted)
+                                    {
+                                      SharedPreferences sp = await SharedPreferences.getInstance();
+
+                                      sp.setBool(userLocationBool, true);
+
+                                      Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(builder: (context) =>  SplashScreen()),
+                                          ModalRoute.withName("/splashView")
+
+                                      );
+                                    }
+                                  });
+
+                                },)
+                          );
 
 
-                          Permission.locationWhenInUse.request().then((value) async {
 
-                            if(value.isGranted)
-                              {
-                                SharedPreferences sp = await SharedPreferences.getInstance();
 
-                                sp.setBool(userLocationBool, true);
 
-                                Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(builder: (context) =>  SplashScreen()),
-                                    ModalRoute.withName("/splashView")
 
-                                );
-                              }
-                          });
+
 
 
                         },

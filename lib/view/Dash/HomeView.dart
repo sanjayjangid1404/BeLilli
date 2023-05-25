@@ -106,6 +106,7 @@ class _HomeView extends State<HomeView> {
 
             userLat = value.latitude.toString();
             userLon = value.longitude.toString();
+            getAllCategory();
 
 
             print(value);
