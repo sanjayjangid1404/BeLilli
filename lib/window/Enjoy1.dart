@@ -1,19 +1,11 @@
 
 import 'dart:async';
-import 'dart:io';
-
 import 'package:belilli/appcomman/AppColor.dart';
 import 'package:belilli/appcomman/AppUtil.dart';
-import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
-import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
-import 'package:in_app_purchase_android/in_app_purchase_android.dart';
-import 'package:in_app_purchase_android/billing_client_wrappers.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'ConsumableStore.dart';
-import 'EnjoyInView.dart';
 
 class Enjoy1 extends StatefulWidget{
   const Enjoy1({super.key});
@@ -26,34 +18,13 @@ class Enjoy1 extends StatefulWidget{
 class _Enjoy1 extends State<Enjoy1> {
 
 
-  String testID = 'one_month_subscription';
-  List<String> testID2 = ['one_month_subscription'];
+  String testID = '1_month_subscription';
   final InAppPurchase _iap = InAppPurchase.instance;
 
-  bool _isAvailable = false;
 
   List<ProductDetails> _products = [];
-  List<PurchaseDetails> _purchases = [];
-
-
-  int _credits = 0;
 
   late StreamSubscription<List<PurchaseDetails>> _subscription;
-  List<String> _notFoundIds = <String>[];
-
-  List<String> _consumables = <String>[];
-
-  bool _purchasePending = false;
-  bool _loading = true;
-  String? _queryProductError;
-
-   bool _kAutoConsume = true;
-
-   String _kConsumableId = 'one_month_subscription';
-   // String _kUpgradeId = 'upgrade';
-   // String _kSilverSubscriptionId = 'subscription_silver';
-   // String _kGoldSubscriptionId = 'subscription_gold';
-   List<String> _kProductIds = [];
 
 
   Future<void> _getUserProducts() async {
@@ -66,16 +37,8 @@ class _Enjoy1 extends State<Enjoy1> {
       if(response.productDetails!=null)
       {
         _products = response.productDetails;
-       /* for(int i=0; i<response.productDetails.length; i++)
-        {
-          _products.add(response.productDetails[i]);
-        }*/
+
       }
-
-      print(_products);
-      final PurchaseParam purchaseParam = PurchaseParam(productDetails: _products[0]);
-      _iap.buyConsumable(purchaseParam: purchaseParam);
-
 
     }
     else {
@@ -84,26 +47,19 @@ class _Enjoy1 extends State<Enjoy1> {
 
 
     setState(() {
-      // _products = response.productDetails;
     });
   }
-
-
-  final Set<String> _kIds = {'android.test.purchased'};
-
-
-
 
 
   Future<void> _startPurchase(ProductDetails productDetails1) async {
     final ProductDetails productDetails = productDetails1;
      PurchaseParam purchaseParam = PurchaseParam(productDetails: productDetails);
     if (await InAppPurchase.instance.isAvailable()) {
-      await InAppPurchase.instance.buyConsumable(purchaseParam: purchaseParam);
+      await InAppPurchase.instance.buyConsumable(purchaseParam: purchaseParam).then((value) {
 
+      });
 
     } else {
-      // In-app purchases are not available.
     }
   }
 
@@ -113,7 +69,6 @@ class _Enjoy1 extends State<Enjoy1> {
   @override
   void dispose() {
 
-    // cancelling the subscription
     _subscription.cancel();
 
     super.dispose();
@@ -125,17 +80,26 @@ class _Enjoy1 extends State<Enjoy1> {
     super.initState();
 
     SharedPreferences.getInstance().then((sp) {
+
+    /*  final Stream<List<PurchaseDetails>> purchaseUpdated = _iap.purchaseStream;
+      _subscription = purchaseUpdated.listen((purchaseDetailsList) {
+        setState(() {
+          listenToPurchaseUpdated();
+          // _purchases.addAll(purchaseDetailsList);
+          // _listenToPurchaseUpdated(purchaseDetailsList);
+        });
+      }, onDone: () {
+        _subscription.cancel();
+      }, onError: (error) {
+        _subscription.cancel();
+      });*/
+
       _getUserProducts();
       setState(() {
 
       });
     });
   }
-
-
-
-
-
   String content  = "If you don’t want to continue with Belilli you can cancel at any time in the next 30 days and it will cost you nothing. Zip Nada. If you love being a part of Belilli then the monthly subscription is just £2.99";
   @override
   Widget build(BuildContext context) {
@@ -208,9 +172,10 @@ class _Enjoy1 extends State<Enjoy1> {
 
                               if(_products.isNotEmpty)
                                 {
-                                  print("erwefrqgwtyg"+_products[0].title);
-                                  print("erwefrqgwtyg"+_products[0].id);
-                                  _startPurchase(_products[0]);
+                                  print("erwefrqgwtyg"+_products[1].title);
+                                  print("erwefrqgwtyg"+_products[1].id);
+                                  _startPurchase(_products[1]);
+
                                 }
                               else
                               {
@@ -251,4 +216,23 @@ class _Enjoy1 extends State<Enjoy1> {
       ),
     );
   }
+
+  Future<void> listenToPurchaseUpdated() async {
+    _subscription = InAppPurchase.instance.purchaseStream.listen((List<PurchaseDetails> purchaseList) {
+      purchaseList.forEach((PurchaseDetails purchase) async {
+        print(purchase.productID);
+        if (purchase.status == PurchaseStatus.purchased) {
+
+          AppUtil.showToast("Subscription Complete", "s");
+          // Purchase successful, call API here.
+          // await callAPI();
+          // Fulfill the purchase (e.g., deliver content) if needed.
+          InAppPurchase.instance.completePurchase(purchase);
+        }
+      });
+    });
+  }
+
+
+
 }

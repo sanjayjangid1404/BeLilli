@@ -648,7 +648,8 @@ class _HomeView extends State<HomeView> {
                             flex: 1,
                             child: Align(
                                 alignment: Alignment.topRight,
-                                child: Text(double.parse(businessResponse.data![index].distance.toString()).toStringAsFixed(1)+" miles",
+                                child: Text(businessResponse.data![index].distance.toString().isNotEmpty ?
+                                "${double.parse(businessResponse.data![index].distance.toString()).toStringAsFixed(1)} miles" : "",
                                   style: TextStyle(fontSize: 12,color: greyColor),)))
                       ],
                     ),

@@ -5,6 +5,7 @@ import 'package:belilli/Model/RequestModel/ForgetPassword.dart';
 import 'package:belilli/Model/RequestModel/ProfileUpdateRequest.dart';
 
 import '../Model/RequestModel/AddFavouriteRequest.dart';
+import '../Model/RequestModel/AddSubscriptionRequest.dart';
 import '../Model/RequestModel/BusinessDetailsRequest.dart';
 import '../Model/RequestModel/LoginRequest.dart';
 import '../Model/RequestModel/RegisterRequestModel.dart';
@@ -305,6 +306,36 @@ class ObjectController
     } else {
       final SearchResponse responseModel;
       responseModel = SearchResponse.fromJson(json.decode(response.body));
+      return responseModel;
+      throw Exception('Failed to load data!');
+    }
+  }
+
+  subscriptionUpdate(AddSubscriptionRequest requestModel) async {
+
+    AppUtil.appLogs("--------------Parameter---------------");
+    AppUtil.appLogs(requestModel.toJson());
+    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=updatesubscriptionandroid"), body: requestModel.toJson());
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      AppUtil.appLogs("--------------Response---------------");
+      AppUtil.appLogs(json.decode(response.body));
+      int statusCode = response.statusCode;
+      AppUtil.appLogs("--------------Status Code---------------");
+      AppUtil.appLogs(statusCode);
+      final SimpleResponse responseModel;
+      if (statusCode == 200 || response.statusCode == 400) {
+        responseModel = SimpleResponse.fromJson(json.decode(response.body));
+        return responseModel;
+      } else {
+        responseModel = SimpleResponse.fromJson(json.decode(response.body));
+        return responseModel;
+        throw Exception('Failed to load data!');
+        // return loginResponse;
+
+      }
+    } else {
+      final SimpleResponse responseModel;
+      responseModel = SimpleResponse.fromJson(json.decode(response.body));
       return responseModel;
       throw Exception('Failed to load data!');
     }

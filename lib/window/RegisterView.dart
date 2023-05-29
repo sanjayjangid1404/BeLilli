@@ -277,6 +277,12 @@ class _RegisterView extends State<RegisterView> {
                                InkWell(
                                  onTap: (){
 
+                                   Navigator.pushAndRemoveUntil(
+                                       context,
+                                       MaterialPageRoute(builder: (context) =>  Enjoy1()),
+                                       ModalRoute.withName("/enjoy1")
+
+                                   );
                                    if(fName.text.toString().trim().isEmpty)
                                    {
                                      AppUtil.showToast("Enter first name", "s");
@@ -309,6 +315,7 @@ class _RegisterView extends State<RegisterView> {
 
                                    else
                                    {
+
                                      RegisterRequestModel requestModel = RegisterRequestModel("", "", "", "", "", "");
 
                                      requestModel.first_name = fName.text.toString().trim();
