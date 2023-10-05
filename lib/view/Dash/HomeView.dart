@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:belilli/Model/RequestModel/BusinessFilterRequest.dart';
@@ -9,6 +10,8 @@ import 'package:belilli/appcomman/AppColor.dart';
 import 'package:belilli/appcomman/AppFont.dart';
 import 'package:belilli/appcomman/AppUtil.dart';
 import 'package:belilli/appcomman/AppVariable.dart';
+import 'package:belilli/window/Enjoy1.dart';
+import 'package:belilli/window/LoginView.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
@@ -16,14 +19,19 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Model/RequestModel/AddFavouriteRequest.dart';
+import '../../Model/RequestModel/LoginRequest.dart';
 import '../../Model/RequestModel/RemoveFavRequest.dart';
 import '../../Model/RequestModel/SearchItemFavRequest.dart';
 import '../../Model/ResponseModel/BusinessResponse.dart';
 import '../../Model/ResponseModel/CategoryListResponse.dart';
 import '../../Model/ResponseModel/FeaturedListResponse.dart';
+import '../../Model/ResponseModel/LoginResponse.dart';
 import '../../Model/ResponseModel/SimpleResponse.dart';
 import '../../api/ApiURL.dart';
 import '../../api/ObjectController.dart';
@@ -44,8 +52,11 @@ class _HomeView extends State<HomeView> {
   TextEditingController searchCtrl = TextEditingController();
   FocusNode searchNode = FocusNode();
   String userID = "";
+  String token = "";
   String userLat = "0";
   String userLon = "0";
+  String userEmail = "0";
+  String userPassword = "0";
   String userRadius = "0";
   double position  = 0;
   List<bool>favItemValue = [];
@@ -90,10 +101,14 @@ class _HomeView extends State<HomeView> {
     SharedPreferences.getInstance().then((SharedPreferences sp){
       userID = sp.getString(saveUserID)!=null ? sp.getString(saveUserID)! : "";
       userLon = sp.getString(saveUserLon)!=null ? sp.getString(saveUserLon)! : "0";
+      userEmail = sp.getString(saveUserEmail)!=null ? sp.getString(saveUserEmail)! : "0";
+      userPassword = sp.getString(saveUserPassword)!=null ? sp.getString(saveUserPassword)! : "0";
       userLat = sp.getString(saveUserLat)!=null ? sp.getString(saveUserLat)! : "0";
       userRadius = sp.getString("radius")!=null ? sp.getString("radius")! : "0";
       isUserLocation = sp.getBool(userLocationBool)!=null ? sp.getBool(userLocationBool)! : false;
-      selectCategory = sp.getStringList("filterList")!=null ? sp.getStringList("filterList")!:[];
+      // selectCategory = sp.getStringList("filterList")!=null ? sp.getStringList("filterList")!:[];
+      token = sp.getString(saveUserToken)!=null ? sp.getString(saveUserToken)! : "";
+      userDetails();
 
       if(isUserLocation)
         {
@@ -118,11 +133,121 @@ class _HomeView extends State<HomeView> {
       }
 
       FocusManager.instance.primaryFocus?.unfocus();
+      FocusScope.of(context).unfocus();
 
       setState(() {
       });
 
     });
+  }
+
+
+  userDetails()
+  {
+    LoginRequest requestModel = LoginRequest("", "","","");
+
+    requestModel.username = userEmail;
+    requestModel.password = userPassword;
+    requestModel.device_id = token;
+    requestModel.device_type = Platform.isAndroid ? "Android" : "IOS";
+    ObjectController controller = ObjectController();
+    controller.loginCallAPI(requestModel).then((value) async {
+
+
+
+      LoginResponse response = value;
+
+
+      final purchasedUpdated = InAppPurchase.instance.purchaseStream;
+      StreamSubscription<List<PurchaseDetails>> _subscription = purchasedUpdated.listen(_onPurchasedUpdated);
+      await InAppPurchase.instance.restorePurchases();
+      if(response.error==false && response.data!=null)
+      {
+
+        SharedPreferences sp = await SharedPreferences.getInstance();
+
+        sp.setString(saveUserEmail, response.data!.email.toString());
+        sp.setString(saveUserID, response.data!.id.toString());
+        sp.setString(saveUserFirst, response.data!.firstName.toString());
+        sp.setString(saveUserLast, response.data!.lastName.toString());
+        sp.setString(saveUserStatus, response.data!.status.toString());
+        sp.setString(saveUserPasswordKey, response.data!.password.toString());
+
+
+        if(response.data!.endDate.toString().isNotEmpty && response.data!.endDate.toString()!=null)
+          {
+            DateTime date1 = DateTime.parse(response.data!.endDate.toString());
+            DateTime date2 = DateTime.parse(DateTime.now().toString());
+            if(response.data!.endDate==null || response.data!.endDate=="" || daysBetween(date2, date1)<0)
+
+            {
+              QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.error,
+                  title: 'Oops...',
+                  text: 'Your Subscription Expired',
+                  confirmBtnText: "Renew",
+                  confirmBtnColor: primary,
+                  onConfirmBtnTap: (){
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) =>  Enjoy1()),
+                        ModalRoute.withName("/enjoy")
+
+                    );
+                  }
+
+              );
+              final purchasedUpdated = InAppPurchase.instance.purchaseStream;
+              await InAppPurchase.instance.restorePurchases();
+              StreamSubscription<List<PurchaseDetails>> _subscription = purchasedUpdated.listen(_onPurchasedUpdated);
+
+            }
+          }
+        else
+        {
+          QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              title: 'Oops...',
+              text: 'Your Subscription Expired',
+              confirmBtnText: "Renew",
+              confirmBtnColor: primary,
+              onConfirmBtnTap: (){
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) =>  Enjoy1()),
+                    ModalRoute.withName("/enjoy")
+
+                );
+              }
+
+          );
+        }
+
+
+
+      }
+
+      setState(() {
+        isLoading=  false;
+      });
+    });
+  }
+
+  void _onPurchasedUpdated(List<PurchaseDetails> purchaseDetailsList) {
+    purchaseDetailsList.forEach((purchaseDetails){
+      if (purchaseDetails.status == PurchaseStatus.restored) {
+        print(purchaseDetails.verificationData.serverVerificationData);
+        print(purchaseDetails.verificationData.localVerificationData);
+      }
+    });
+  }
+
+  int daysBetween(DateTime from, DateTime to) {
+    from = DateTime(from.year, from.month, from.day);
+    to = DateTime(to.year, to.month, to.day);
+    return (to.difference(from).inHours / 24).round();
   }
   getBusiness(String searchValue,String categoryID,String userRadius)
   {
@@ -205,14 +330,6 @@ class _HomeView extends State<HomeView> {
 
       featuredListResponse = value!;
 
-      if(featuredListResponse.data!=null && featuredListResponse.error==false)
-        {
-
-        }
-      else
-      {
-
-      }
 
       setState(() {
         isFeaturing=  false;
@@ -347,6 +464,14 @@ class _HomeView extends State<HomeView> {
    );
   }
 
+
+  @override
+  void dispose() {
+    searchCtrl.dispose();
+    searchNode.dispose();
+    super.dispose();
+  }
+
   Widget headBar()
   {
     return Padding(
@@ -367,7 +492,7 @@ class _HomeView extends State<HomeView> {
                   ),suggestionsBoxVerticalOffset: 0,
 
                   textFieldConfiguration: TextFieldConfiguration(
-                      autofocus: true,
+                      autofocus: false,
                       controller: searchCtrl,
                       focusNode: searchNode,
                       onChanged: (value){
@@ -384,7 +509,9 @@ class _HomeView extends State<HomeView> {
                       },
                     onSubmitted: (value){
                         setState(() {
-                          getBusiness(value,selectCategory.join(","),userRadius);
+                          if(value.isNotEmpty) {
+                            getBusiness(value,selectCategory.join(","),userRadius);
+                          }
                         });
                     },
                       style: AppUtil.textStyle(),
@@ -441,7 +568,7 @@ class _HomeView extends State<HomeView> {
                   onTap: (){
                     if(categoryListResponse.data!=null)
                     {
-                      NavigationService.instance.navigateToArgValueVal("/filterView","home",categoryListResponse,null);
+                      NavigationService.instance.navigateToArgValueVal2("/filterView","home",categoryListResponse,null,"0");
                     }
                     else
                     {
@@ -484,28 +611,34 @@ class _HomeView extends State<HomeView> {
         ),
         Container(
           height: 120,
-          padding: EdgeInsets.only(left: 17),
+
+          alignment: Alignment.center,
 
           child:
           ListView.builder(
+
             itemCount: categoryListResponse.data!=null ?categoryListResponse.data!.length : 0,
             scrollDirection: Axis.horizontal,
             shrinkWrap: true,
+            padding: EdgeInsets.only(left: 13),
             itemBuilder: (context, index) {
-            return Column(
-              children: [
-                InkWell(
-                  onTap:(){
-                    List<String>selectCategory = [];
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  InkWell(
+                    onTap:(){
+                      List<String>selectCategory = [];
 
-                    selectCategory.add(categoryListResponse.data![index].id.toString());
-                    NavigationService.instance.navigateToArgVal("/searchFilterHome", "0", selectCategory);
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.only(right: 7,bottom: 7),
+                      selectCategory.add(categoryListResponse.data![index].id.toString());
+                      NavigationService.instance.navigateToArgVal("/searchFilterHome", "0", selectCategory);
+                    },
                     child: Container(
                       height: 90,
-                      width: 90,
+                      width: 110,
+                      alignment:Alignment.center,
 
                       decoration: BoxDecoration(
                         color: Colors.red,
@@ -517,8 +650,8 @@ class _HomeView extends State<HomeView> {
                           child: CachedNetworkImage(
                             imageUrl: imageURL+categoryListResponse.data![index].banner.toString(),
                             fit: BoxFit.fill,
-                            height:150,
-                            width: double.infinity,
+                            height:90,
+                            width: 110,
 
                             placeholder: (context, url) => SkeletonView(),
                             errorWidget: (context, url, error) => Center(
@@ -532,11 +665,16 @@ class _HomeView extends State<HomeView> {
                         /*Image.asset("images/image2.png",height: 90,width: 90,fit: BoxFit.cover,)*/),
                     ),
                   ),
-                ),
 
-                Text(categoryListResponse.data![index].name.toString(),
-                  style: TextStyle(fontSize: 10,fontFamily: primaryFont,color: Colors.white),),
-              ],
+                  SizedBox(height: 4,),
+
+                  Center(
+                    child: Text(categoryListResponse.data![index].name.toString().trim(),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12,fontFamily: primaryFont,color: Colors.white),),
+                  ),
+                ],
+              ),
             );
           },),
         ),
@@ -584,6 +722,7 @@ class _HomeView extends State<HomeView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          businessResponse.data![index].categoryName.toString().isNotEmpty ?
                           Container(
 
                             padding: EdgeInsets.symmetric(horizontal: 6,vertical: 4),
@@ -592,8 +731,9 @@ class _HomeView extends State<HomeView> {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(12)),
                             child: Text(businessResponse.data![index].categoryName.toString(),
-                              style: TextStyle(fontSize: 10,color: Colors.red),),
-                          ),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 12,color: Colors.red),),
+                          ) : SizedBox(),
                           favItemValue[index] ?
                           InkWell(
                             onTap: (){
@@ -641,7 +781,8 @@ class _HomeView extends State<HomeView> {
                                 Text(businessResponse.data![index].businessName.toString(),
                                   style: TextStyle(fontSize: 12,color: greyColor),),
                                 SizedBox(height: 6,),
-                                Text(businessResponse.data![index].offerTitle.toString(),style: TextStyle(fontSize: 11,color: redColor),),
+                                businessResponse.data![index].offerTitle.toString().isNotEmpty ?
+                                Text(businessResponse.data![index].offerTitle.toString(),style: TextStyle(fontSize: 11,color: redColor),) : SizedBox(),
                               ],
                             )),
                         Expanded(
@@ -753,7 +894,7 @@ class _HomeView extends State<HomeView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 40,),
+          SizedBox(height: 20,),
           Text("Featured businesses",style: TextStyle(fontSize: 14,color: greyColor),),
           SizedBox(height: 11,),
           !isFeaturing ? SizedBox(
@@ -765,13 +906,14 @@ class _HomeView extends State<HomeView> {
             physics: BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             itemBuilder: (context, index) {
-            return SizedBox(
+            return Container(
                 width:247,
+              // color: Colors.red,
               child: Padding(
                 padding: const EdgeInsets.only(right: 15.0),
                 child: InkWell(
                   onTap:(){
-                    NavigationService.instance.navigateToArgVal("/productDetails","product",featuredListResponse.data![index].id.toString());
+                    NavigationService.instance.navigateToArgVal("/productDetails","product2",featuredListResponse.data![index].id.toString());
                   },
                   child: Column(
                     children: [
@@ -780,7 +922,7 @@ class _HomeView extends State<HomeView> {
                           child: CachedNetworkImage(
                             imageUrl: imageURL+featuredListResponse.data![index].image.toString(),
                             fit: BoxFit.fill,
-                            height: 140,
+                            height: 153,
                             width: 247,
                             placeholder: (context, url) => SkeletonView(),
                             errorWidget: (context, url, error) => Center(
@@ -822,7 +964,11 @@ class _HomeView extends State<HomeView> {
                                       overflow:TextOverflow.ellipsis,
                                       style: TextStyle(fontSize: 12,color: greyColor),),
                                     SizedBox(height: 6,),
-                                    Text(featuredListResponse.data![index].categoryName.toString(),style: TextStyle(fontSize: 11,color: redColor),),
+                                   // featuredListResponse.data![index].categoryName.toString().isNotEmpty ?
+                                    Text(featuredListResponse.data![index].categoryName.toString(),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(fontSize: 11,color: redColor),) //SizedBox(),
                                   ],
                                 ),
                               ),
@@ -842,7 +988,8 @@ class _HomeView extends State<HomeView> {
               ),
             );
           },),
-          ) : SkeletonView(height: 200,)
+          ) : SkeletonView(height: 200,),
+          SizedBox(height: 20,),
 
 
         ],

@@ -1,9 +1,13 @@
 
+import 'dart:io';
+
 import 'package:belilli/Model/RequestModel/RegisterRequestModel.dart';
 import 'package:belilli/Model/ResponseModel/RegisterResponse.dart';
 import 'package:belilli/api/ObjectController.dart';
 import 'package:belilli/appcomman/AppUtil.dart';
 import 'package:belilli/window/LoginView.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,13 +33,37 @@ class _RegisterView extends State<RegisterView> {
   TextEditingController lName = TextEditingController();
 
   bool isLoading  = false;
+  String deviceId = "";
+
+  String token = "";
+
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
+    SharedPreferences.getInstance().then((sp) async {
 
+
+
+
+      setState((){});
+
+
+    });
+  }
+
+
+  Future<String?> _getId() async {
+    var deviceInfo = DeviceInfoPlugin();
+    if (Platform.isIOS) { // import 'dart:io'
+      var iosDeviceInfo = await deviceInfo.iosInfo;
+      return iosDeviceInfo.identifierForVendor; // unique ID on iOS
+    } else if(Platform.isAndroid) {
+      var androidDeviceInfo = await deviceInfo.androidInfo;
+      return androidDeviceInfo.device; // unique ID on Android
+    }
   }
 
 
@@ -275,14 +303,13 @@ class _RegisterView extends State<RegisterView> {
                                SizedBox(height: 20,),
 
                                InkWell(
-                                 onTap: (){
-
-                                   Navigator.pushAndRemoveUntil(
+                                 onTap: () async {
+                                  /* Navigator.pushAndRemoveUntil(
                                        context,
                                        MaterialPageRoute(builder: (context) =>  Enjoy1()),
                                        ModalRoute.withName("/enjoy1")
 
-                                   );
+                                   );*/
                                    if(fName.text.toString().trim().isEmpty)
                                    {
                                      AppUtil.showToast("Enter first name", "s");
@@ -316,12 +343,15 @@ class _RegisterView extends State<RegisterView> {
                                    else
                                    {
 
+                                     String?token = await FirebaseMessaging.instance.getToken();
                                      RegisterRequestModel requestModel = RegisterRequestModel("", "", "", "", "", "");
 
                                      requestModel.first_name = fName.text.toString().trim();
                                      requestModel.last_name = lName.text.toString().trim();
                                      requestModel.username = email.text.toString().trim();
                                      requestModel.password = password.text.toString().trim();
+                                     requestModel.device_id = token!;
+                                     requestModel.device_type = Platform.isAndroid ? "Android" : "IOS";
 
                                      ObjectController controller = ObjectController();
 
@@ -331,33 +361,43 @@ class _RegisterView extends State<RegisterView> {
 
                                      controller.registerCallAPI(requestModel).then((value) async {
 
-                                       RegisterResponse response = value;
+                                       if(value!=null)
+                                         {
+                                           RegisterResponse response = value;
 
-                                       if(response.error==false && response.data!=null)
+                                           if(response.error==false && response.data!=null)
+                                           {
+                                             SharedPreferences sp = await SharedPreferences.getInstance();
+
+                                             sp.setString(saveUserEmail, response.data!.email.toString());
+                                             sp.setString(saveUserID, response.data!.id.toString());
+                                             sp.setString(saveUserFirst, response.data!.firstName.toString());
+                                             sp.setString(saveUserLast, response.data!.lastName.toString());
+                                             sp.setString(saveUserStatus, response.data!.status.toString());
+                                             sp.setString(saveUserPasswordKey, response.data!.password.toString());
+                                             sp.setString(saveUserPassword, password.text.toString());
+
+                                             AppUtil.showToast(response.message!, "s");
+
+
+                                             Navigator.pushAndRemoveUntil(
+                                                 context,
+                                                 MaterialPageRoute(builder: (context) =>  Enjoy1()),
+                                                 ModalRoute.withName("/enjoy1")
+
+                                             );
+                                           }
+
+
+                                         }
+                                       else
                                        {
-                                         SharedPreferences sp = await SharedPreferences.getInstance();
-
-                                         sp.setString(saveUserEmail, response.data!.email.toString());
-                                         sp.setString(saveUserID, response.data!.id.toString());
-                                         sp.setString(saveUserFirst, response.data!.firstName.toString());
-                                         sp.setString(saveUserLast, response.data!.lastName.toString());
-                                         sp.setString(saveUserStatus, response.data!.status.toString());
-                                         sp.setString(saveUserPassword, response.data!.password.toString());
-
-                                         AppUtil.showToast(response.message!, "s");
-
-
-                                         Navigator.pushAndRemoveUntil(
-                                             context,
-                                             MaterialPageRoute(builder: (context) =>  Enjoy1()),
-                                             ModalRoute.withName("/enjoy1")
-
-                                         );
+                                         setState(() {
+                                           isLoading=  false;
+                                         });
                                        }
 
-                                       setState(() {
-                                         isLoading=  false;
-                                       });
+
                                      });
                                    }
 

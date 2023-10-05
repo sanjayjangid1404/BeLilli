@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "557098819958",
+    "project_id": "belilli-9d163",
+    "storage_bucket": "belilli-9d163.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:557098819958:android:0a21de95e065413b689a57",
+        "android_client_info": {
+          "package_name": "com.edge.belilli"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "557098819958-nhqka8lvggqelrufcfrbov736j3vdmj9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edge.belilli",
+            "certificate_hash": "9d3131866b139f23d68511f686387f7c99c86a55"
+          }
+        },
+        {
+          "client_id": "557098819958-lkklfihlbvt8of2gbo405u76k3cmf12m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXy3tMaLB5jJcfGymW2IUlAModsdVe8Nk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "557098819958-lkklfihlbvt8of2gbo405u76k3cmf12m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

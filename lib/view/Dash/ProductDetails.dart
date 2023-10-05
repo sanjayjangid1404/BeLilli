@@ -17,7 +17,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../Model/RequestModel/AddFavouriteRequest.dart';
 import '../../Model/RequestModel/BusinessDetailsRequest.dart';
+import '../../Model/RequestModel/FavListRequest.dart';
 import '../../Model/RequestModel/RemoveFavRequest.dart';
+import '../../Model/RequestModel/SimpleRequest.dart';
 import '../../Model/ResponseModel/BusinessDetailsResponse.dart';
 import '../../Model/ResponseModel/RedeemOfferResponse.dart';
 import '../../Model/ResponseModel/SimpleResponse.dart';
@@ -67,12 +69,12 @@ class _ProductDetails extends State<ProductDetails> {
 
       userID = sp.getString(saveUserID)!=null?sp.getString(saveUserID)! : "";
 
-      if(fromPage=="product" && id!=null)
+      if(fromPage=="product" ||fromPage =="product2" && id!=null)
         {
           getBusinessData();
         }
 
-      // getAllFavList();
+      getAllFavList();
       setState(() {
 
       });
@@ -117,7 +119,7 @@ class _ProductDetails extends State<ProductDetails> {
 
   }
 
-/*  void getAllFavList()
+  void getAllFavList()
   {
     ArrayController controller = ArrayController();
 
@@ -125,7 +127,7 @@ class _ProductDetails extends State<ProductDetails> {
       isLoading=  true;
     });
 
-    SimpleRequest requestModel  = SimpleRequest(userID);
+    FavListRequest requestModel  = FavListRequest(lnt,lng,userID);
 
     controller.getAllFavouriteList(requestModel).then((value){
 
@@ -145,7 +147,7 @@ class _ProductDetails extends State<ProductDetails> {
         isLoading=  false;
       });
     });
-  }*/
+  }
   @override
   Widget build(BuildContext context) {
 
@@ -153,7 +155,7 @@ class _ProductDetails extends State<ProductDetails> {
 
     fromPage = argument["arg"];
 
-    if(fromPage=="product")
+    if(fromPage=="product" || fromPage =="product2")
       {
         id = argument["data"];
       }
@@ -190,6 +192,7 @@ class _ProductDetails extends State<ProductDetails> {
 
                          Row(
                            children: [
+                             categoryName.isNotEmpty && categoryName!=null ?
                              Container(
                                padding: EdgeInsets.symmetric(horizontal: 8,vertical: 6),
                                decoration: BoxDecoration(
@@ -197,7 +200,8 @@ class _ProductDetails extends State<ProductDetails> {
                                  color: Colors.white
                                ),
                                child: Text(categoryName,style: TextStyle(fontSize: 12,color: redColor),),
-                             ),
+                             ) : SizedBox(),
+                             distance.isNotEmpty && distance!=null ?
                              Container(
                                padding: EdgeInsets.symmetric(horizontal: 8,vertical: 6),
                                margin: EdgeInsets.symmetric(horizontal: 6),
@@ -206,7 +210,7 @@ class _ProductDetails extends State<ProductDetails> {
                                  color: Colors.white
                                ),
                                child: Text(distance,style: TextStyle(fontSize: 12,color: primary),),
-                             )
+                             ) : SizedBox()
                            ],
                          )
 
@@ -239,7 +243,7 @@ class _ProductDetails extends State<ProductDetails> {
                                      child: Text(businessName,style: TextStyle(fontSize: 16,color: greyColor),)),
                                  Expanded(
                                      flex: 1,
-                                     child: InkWell(
+                                     child:fromPage =="product" ?  InkWell(
                                        onTap: ()
                                        {
                                          if(fromPage=="product" && !favIds.contains(businessId))
@@ -249,7 +253,9 @@ class _ProductDetails extends State<ProductDetails> {
                                            }
                                          else
                                          {
-                                           showDialog(
+
+                                           removeFav(businessId);
+                                           /*showDialog(
                                              barrierColor: Colors.black26,
                                              context: context,
                                              builder: (context) {
@@ -260,7 +266,7 @@ class _ProductDetails extends State<ProductDetails> {
 
                                                );
                                              },
-                                           );
+                                           );*/
 
                                          }
                                        },
@@ -268,7 +274,7 @@ class _ProductDetails extends State<ProductDetails> {
                                          alignment: Alignment.topRight,
                                          child: favIds.contains(businessId) ? ImageIcon(AssetImage("images/heart.png"),size: 27,color: Color(0xFFe6543a),) :
                                          ImageIcon(AssetImage("images/blankheart.png"),size: 27,color: Color(0xFFe6543a),),),
-                                     ))
+                                     ) : SizedBox())
                                ],
                              ),
                            ),
@@ -296,6 +302,7 @@ class _ProductDetails extends State<ProductDetails> {
                    ),
 
                    SizedBox(height: 40,),
+                   offer.isNotEmpty ?
                    Padding(
                        padding: EdgeInsets.symmetric(horizontal: 17),
                      child:  Container(
@@ -315,7 +322,7 @@ class _ProductDetails extends State<ProductDetails> {
 
                            Text(offerDetails,
 
-                             style: TextStyle(fontSize: 12,color: Color(0xFF121212),letterSpacing: 0.04),),
+                             style: TextStyle(fontSize: 14,color: Color(0xFF121212),letterSpacing: 0.04),),
 
                            SizedBox(
                              height: 16,
@@ -348,7 +355,7 @@ class _ProductDetails extends State<ProductDetails> {
                        ),
                      ),
 
-                   ),
+                   ) :SizedBox(),
 
                    SizedBox(height: 36,),
 
@@ -502,6 +509,8 @@ class _ProductDetails extends State<ProductDetails> {
       if(response.error ==false)
         {
           AppUtil.showToast(response.message!, "s");
+
+          favIds.add(businessId);
           // getAllFavList();
         }
       else
@@ -559,6 +568,7 @@ class _ProductDetails extends State<ProductDetails> {
       if(response.error==false)
       {
         AppUtil.showToast(response.message!, "s");
+        favIds.remove(businessId);
         // getAllFavList();
 
         setState(() {

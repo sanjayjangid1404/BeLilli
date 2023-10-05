@@ -111,7 +111,7 @@ class _HomeView extends State<SearchFilterHome> {
         userLat = value.latitude.toString();
         userLon = value.longitude.toString();
 
-        // getAllCategory();
+        getAllCategory();
         getBusiness("",selectCategory.join(","),fromPage);
         searchNode.unfocus();
 
@@ -321,17 +321,16 @@ class _HomeView extends State<SearchFilterHome> {
       child: Row(
 
         children: [
-          InkWell(
-            onTap: (){
-              _onWillPop();
-            },
-            child: Expanded(
-                flex: 1,
-                child: Icon(Icons.arrow_back,color: Colors.white,)),
-          ),
+          Expanded(
+              flex: 2,
+              child: InkWell(
+                  onTap: (){
+                    _onWillPop();
+                  },
+                  child: Icon(Icons.arrow_back,color: Colors.white,))),
 
           Expanded(
-            flex: 9,
+            flex: 13,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 0),
               child: SizedBox(
@@ -406,6 +405,39 @@ class _HomeView extends State<SearchFilterHome> {
               ),
             ),
           ),
+          Expanded(
+              flex: 5,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  SizedBox(width: 10,),
+                  InkWell(
+                      onTap: (){
+                        print("CategoryID=>$selectCategory");
+                        if(categoryListResponse.data!=null)
+                        {
+                          NavigationService.instance.navigateToArgValueVal2("/filterView","home",categoryListResponse,selectCategory,fromPage);
+                        }
+                        else
+                        {
+                          AppUtil.showToast("Please wait...", "i");
+                        }
+                      },
+                      child: Padding(
+                        padding:  EdgeInsets.symmetric(horizontal: AppUtil.fullWidth(context)*0.01),
+                        child: ImageIcon(AssetImage("images/filter.png"),size: 27,color: Colors.white,),
+                      )),
+                  SizedBox(width: 10,),
+                  InkWell(
+                      onTap: (){
+                        NavigationService.instance.navigateTo("/accountView");
+                      },
+                      child: Padding(
+                        padding:  EdgeInsets.symmetric(horizontal: AppUtil.fullWidth(context)*0.01),
+                        child: ImageIcon(AssetImage("images/profile.png"),size: 27,color: Color(0xFFe6543a),),
+                      ))
+                ],
+              ))
 
         ],
       ),
@@ -479,6 +511,48 @@ class _HomeView extends State<SearchFilterHome> {
 
       ],
     ) : SizedBox();
+  }
+
+  void getAllCategory()
+  {
+    ArrayController controller = ArrayController();
+
+    setState(() {
+      isLoading=  true;
+    });
+
+    controller.getAllCategory().then((value){
+
+      categoryListResponse = value!;
+
+      if(categoryListResponse.error==false && categoryListResponse.data!=null)
+      {
+
+        setState(() {
+          isCategoryFound = false;
+        });
+        for(int i=0; i<categoryListResponse.data!.length; i++)
+        {
+          categoryName.add(categoryListResponse.data![i].name.toString());
+          categoryId.add(categoryListResponse.data![i].id.toString());
+        }
+
+        getBusiness("",selectCategory.join(","),userRadius);
+
+      }
+
+      else
+      {
+        setState(() {
+          isCategoryFound=  true;
+        });
+      }
+
+
+      setState(() {
+        isLoading=  false;
+      });
+    });
   }
 
   Widget productList()
@@ -683,94 +757,107 @@ class _HomeView extends State<SearchFilterHome> {
     return Container(
       color: Colors.white,
       width: double.infinity,
+
       padding: EdgeInsets.only(left: 17),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 40,),
+          SizedBox(height: 20,),
           Text("Featured businesses",style: TextStyle(fontSize: 14,color: greyColor),),
           SizedBox(height: 11,),
           !isFeaturing ? SizedBox(
             height: 200,
             width: double.infinity,
-          child: ListView.builder(
-            itemCount: featuredListResponse.data!=null ? featuredListResponse.data!.length : 0,
-            shrinkWrap: true,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (context, index) {
-            return SizedBox(
-                width:247,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 15.0),
-                child: Column(
-                  children: [
-                    ClipRRect(
-                        borderRadius: BorderRadius.only(topRight: Radius.circular(12),topLeft: Radius.circular(12)),
-                        child: CachedNetworkImage(
-                          imageUrl: imageURL+featuredListResponse.data![index].image.toString(),
-                          fit: BoxFit.fill,
-                          height: 140,
-                          width: 247,
-                          placeholder: (context, url) => SkeletonView(),
-                          errorWidget: (context, url, error) => Center(
-                            child: Center(child: Icon(Icons.error)),
-                          ),
-                          fadeOutDuration: Duration(
-                            seconds: 2,
-                          ),
-                        )),
-                    Container(
-                      decoration:BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xffDDDDDD),
-                            blurRadius: 6.0,
-                            spreadRadius: 1.0,
-                            offset: Offset(0.0, 0.0),
-                          )
-                        ],
+            child: ListView.builder(
+              itemCount: featuredListResponse.data!=null ? featuredListResponse.data!.length : 0,
+              shrinkWrap: true,
+              physics: BouncingScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                return Container(
+                  width:247,
+                  // color: Colors.red,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 15.0),
+                    child: InkWell(
+                      onTap:(){
+                        NavigationService.instance.navigateToArgVal("/productDetails","product2",featuredListResponse.data![index].id.toString());
+                      },
+                      child: Column(
+                        children: [
+                          ClipRRect(
+                              borderRadius: BorderRadius.only(topRight: Radius.circular(12),topLeft: Radius.circular(12)),
+                              child: CachedNetworkImage(
+                                imageUrl: imageURL+featuredListResponse.data![index].image.toString(),
+                                fit: BoxFit.fill,
+                                height: 153,
+                                width: 247,
+                                placeholder: (context, url) => SkeletonView(),
+                                errorWidget: (context, url, error) => Center(
+                                  child: Center(child: Icon(Icons.error)),
+                                ),
+                                fadeOutDuration: Duration(
+                                  seconds: 2,
+                                ),
+                              )),
+                          Container(
+                            decoration:BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0xffDDDDDD),
+                                  blurRadius: 6.0,
+                                  spreadRadius: 1.0,
+                                  offset: Offset(0.0, 0.0),
+                                )
+                              ],
 
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(12),
-                            bottomRight: Radius.circular(12),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              flex:1,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(12),
+                                bottomRight: Radius.circular(12),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(featuredListResponse.data![index].businessName.toString(),
-                                    maxLines:1,
-                                    overflow:TextOverflow.ellipsis,
-                                    style: TextStyle(fontSize: 12,color: greyColor),),
-                                  SizedBox(height: 6,),
-                                  Text(featuredListResponse.data![index].categoryName.toString(),style: TextStyle(fontSize: 11,color: redColor),),
+                                  Expanded(
+                                    flex:1,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(featuredListResponse.data![index].businessName.toString(),
+                                          maxLines:1,
+                                          overflow:TextOverflow.ellipsis,
+                                          style: TextStyle(fontSize: 12,color: greyColor),),
+                                        SizedBox(height: 6,),
+                                        // featuredListResponse.data![index].categoryName.toString().isNotEmpty ?
+                                        Text(featuredListResponse.data![index].categoryName.toString(),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(fontSize: 11,color: redColor),) //SizedBox(),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex:1,
+                                    child: Align(
+                                        alignment: Alignment.topRight,
+                                        child: Text("1.2 miles away",style: TextStyle(fontSize: 12,color: greyColor),)),
+                                  )
                                 ],
                               ),
                             ),
-                            Expanded(
-                              flex:1,
-                              child: Align(
-                                  alignment: Alignment.topRight,
-                                  child: Text("1.2 miles away",style: TextStyle(fontSize: 12,color: greyColor),)),
-                            )
-                          ],
-                        ),
+                          )
+                        ],
                       ),
-                    )
-                  ],
-                ),
-              ),
-            );
-          },),
-          ) : SkeletonView(height: 200,)
+                    ),
+                  ),
+                );
+              },),
+          ) : SkeletonView(height: 200,),
+          SizedBox(height: 20,),
 
 
         ],

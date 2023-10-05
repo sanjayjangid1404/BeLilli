@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:belilli/appcomman/AppFont.dart';
 import 'package:belilli/view/Dash/DashBoard.dart';
-import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+// import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:belilli/view/Dash/SearchFilterHome.dart';
 import 'package:belilli/view/Dash/TakeOfferView.dart';
 import 'package:belilli/view/MainSplashView.dart';
@@ -14,11 +14,14 @@ import 'package:belilli/window/ExpiredMember.dart';
 import 'package:belilli/window/ForgetPassword.dart';
 import 'package:belilli/window/LoginView.dart';
 import 'package:belilli/window/RegisterView.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'appcomman/AppColor.dart';
 import 'appcomman/AppRoute.dart';
+import 'appcomman/AppVariable.dart';
 import 'view/Dash/FilterView.dart';
 import 'view/Dash/ProductDetails.dart';
 import 'view/page/PrivacyPolicy.dart';
@@ -27,10 +30,10 @@ import 'view/profile/CancelSubscription.dart';
 import 'view/profile/ProfileView.dart';
 import 'view/setting/SettingView.dart';
 
-void main() {
+void main() async{
 
   if(Platform.isAndroid) {
-    InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
+    // InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
   }
   SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
@@ -38,6 +41,7 @@ void main() {
     statusBarColor: backgroundColor, // or any color you want
   ));
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
 
 
   runApp(const MyApp());
@@ -60,8 +64,12 @@ class _MyApp extends State<MyApp> {
     // TODO: implement initState
     super.initState();
 
-    SharedPreferences.getInstance().then((sp) {
+    SharedPreferences.getInstance().then((sp) async {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
+      String? token = await FirebaseMessaging.instance.getToken();
+      print("token "+ token!);
+
+      sp.setString(saveUserToken, token);
 
       setState((){});
 

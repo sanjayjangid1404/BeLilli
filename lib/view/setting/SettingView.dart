@@ -73,7 +73,7 @@ class _SettingView extends State<SettingView> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: Center(
                         child: Text("Settings",
-                          style: TextStyle(fontSize: 18,color: Colors.white),),
+                          style: TextStyle(fontSize: 22,color: Colors.white),),
                       ),
                     ),
 
@@ -88,18 +88,18 @@ class _SettingView extends State<SettingView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: 38,),
-                    userId =="7" ? SizedBox() :
-                    Text("Location",style: TextStyle(fontSize: 16,color: Colors.white),),
+                    userId =="293" ? SizedBox() :
+                    Text("Location",style: TextStyle(fontSize: 18,color: Colors.white),),
 
                     SizedBox(height: 7,),
-                    userId =="7" ? SizedBox() : Text("We would love to know your location so we can show \nyou rewards closest to you. Would that be ok?",
-                      style: TextStyle(fontSize: 8.4,color: Color(0xFFdbd3f4)),),
+                    userId =="293" ? SizedBox() : Text("We would love to know your location so we can show \nyou rewards closest to you. Would that be ok?",
+                      style: TextStyle(fontSize: 15,color: Color(0xFFdbd3f4)),),
                     SizedBox(height: 19,),
-                    userId =="7" ? SizedBox() : SwitchListTile(
+                    userId =="293" ? SizedBox() : SwitchListTile(
                       title: Text('Turn location on',style: TextStyle(
                           color: Colors.white,
 
-                          fontSize: 13
+                          fontSize: 17
                       ),
                       ),
                       value: location,
@@ -148,16 +148,16 @@ class _SettingView extends State<SettingView> {
                       height: 1,
                     ),
                     SizedBox(height: 35,),
-                    Text("Notification",style: TextStyle(fontSize: 16,color: Colors.white),),
+                    Text("Notification",style: TextStyle(fontSize: 18,color: Colors.white),),
                     SizedBox(height: 7,),
                     Text("Would you love to hear from the Belilli community:",
-                      style: TextStyle(fontSize: 8.4,color: Color(0xFFdbd3f4)),),
+                      style: TextStyle(fontSize: 15,color: Color(0xFFdbd3f4)),),
                     SizedBox(height: 19,),
                     SwitchListTile(
                       title: Text('Weekly',style: TextStyle(
                           color: Colors.white,
 
-                          fontSize: 13
+                          fontSize: 17
                       ),
                       ),
                       value: weekly,
@@ -182,7 +182,7 @@ class _SettingView extends State<SettingView> {
                       title: Text('Monthly',style: TextStyle(
                           color: Colors.white,
 
-                          fontSize: 13
+                          fontSize: 17
                       ),
                       ),
                       value: monthly,
@@ -207,7 +207,7 @@ class _SettingView extends State<SettingView> {
                       title: Text('Never',style: TextStyle(
                           color: Colors.white,
 
-                          fontSize: 13
+                          fontSize: 17
                       ),
                       ),
                       value: never,

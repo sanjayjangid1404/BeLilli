@@ -41,12 +41,14 @@ dependencies:
   google_maps_flutter: ^2.2.4
   flutter_spinkit: ^5.1.0
   url_launcher: ^6.1.10
-  in_app_purchase: ^3.1.5
+  in_app_purchase: ^3.1.7
   flutter_typeahead: ^4.3.7
-  in_app_purchase_android: ^0.2.3
+  device_info_plus: ^9.0.3
   permission_handler: ^10.2.0
-#  purchases_flutter: ^4.0.0
-#  flutter_inapp_purchase: ^5.4.1
+  firebase_core: ^2.7.0
+  firebase_messaging: ^14.4.1
+  quickalert: ^1.0.1
+
 
 
   cupertino_icons: ^1.0.2

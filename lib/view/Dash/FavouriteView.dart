@@ -178,89 +178,97 @@ class _FavouriteView extends State<FavouriteView> {
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 0.0,vertical: 8),
-          child: Column(
-            children: [
-              Stack(
-                children: [
-                  ClipRRect(
-                      borderRadius: BorderRadius.only(topRight: Radius.circular(12),topLeft: Radius.circular(12)),
-                      child: CachedNetworkImage(
-                        imageUrl: imageURL+responseList.data![index].image.toString(),
-                        fit: BoxFit.fill,
-                        height:143,
-                        width: double.infinity,
+          child: InkWell(
+            onTap: (){
+              NavigationService.instance.navigateToArgVal("/productDetails","product",responseList.data![index].id.toString());
+            },
+            child: Column(
+              children: [
+                Stack(
+                  children: [
+                    ClipRRect(
+                        borderRadius: BorderRadius.only(topRight: Radius.circular(12),topLeft: Radius.circular(12)),
+                        child: CachedNetworkImage(
+                          imageUrl: imageURL+responseList.data![index].image.toString(),
+                          fit: BoxFit.fill,
+                          height:143,
+                          width: double.infinity,
 
-                        placeholder: (context, url) => SkeletonView(),
-                        errorWidget: (context, url, error) => Center(
-                          child: Center(child: Icon(Icons.error)),
-                        ),
-                        fadeOutDuration: Duration(
-                          seconds: 2,
-                        ),
-                      )),
-                  Container(
+                          placeholder: (context, url) => SkeletonView(),
+                          errorWidget: (context, url, error) => Center(
+                            child: Center(child: Icon(Icons.error)),
+                          ),
+                          fadeOutDuration: Duration(
+                            seconds: 2,
+                          ),
+                        )),
+                    responseList.data![index].categoryName.toString().isNotEmpty && responseList.data![index].categoryName.toString()!=null  ?
+                    Container(
 
-                    padding: EdgeInsets.symmetric(horizontal: 6,vertical: 4),
-                    margin: EdgeInsets.symmetric(horizontal: 15,vertical: 8),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12)),
-                    child: Text(responseList.data![index].categoryName.toString(),
-                      style: TextStyle(fontSize: 10,color: Colors.red),),
-                  )
-                ],
-              ),
-              Container(
-                padding: EdgeInsets.only(bottom: 9),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(12),
-                        bottomRight: Radius.circular(12)
-                    ),
-                    color: Colors.white
+                      padding: EdgeInsets.symmetric(horizontal: 6,vertical: 4),
+                      margin: EdgeInsets.symmetric(horizontal: 15,vertical: 8),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12)),
+                      child: Text(responseList.data![index].categoryName.toString(),
+                        style: TextStyle(fontSize: 10,color: Colors.red),),
+                    ) : SizedBox()
+                  ],
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                          flex:1,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(responseList.data![index].businessName.toString(),style: TextStyle(fontSize: 12,color: greyColor),),
-                              SizedBox(height: 6,),
-                              Text("10% off hot drinks",style: TextStyle(fontSize: 11,color: redColor),),
-                            ],
-                          )),
-                      Expanded(
-                          flex: 1,
-                          child: Align(
-                              alignment: Alignment.topRight,
-                              child: InkWell(
-                                  onTap: (){
+                Container(
+                  padding: EdgeInsets.only(bottom: 9),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(12),
+                          bottomRight: Radius.circular(12)
+                      ),
+                      color: Colors.white
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex:1,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(responseList.data![index].businessName.toString(),style: TextStyle(fontSize: 12,color: greyColor),),
+                                SizedBox(height: 6,),
+                                Text(responseList.data![index].description.toString(),style: TextStyle(fontSize: 11,color: redColor),),
+                              ],
+                            )),
+                        Expanded(
+                            flex: 1,
+                            child: Align(
+                                alignment: Alignment.topRight,
+                                child: InkWell(
+                                    onTap: (){
 
-                                    showDialog(
-                                      barrierColor: Colors.black26,
-                                      context: context,
-                                      builder: (context) {
-                                        return CustomAlertDialog(
-                                          title: "Business Removed",
-                                          description: "The Business has been removed from your Favourites list.",
-                                            onTap: () { removeFav(responseList.data![index].businessId.toString()); }
+                                      removeFav(responseList.data![index].businessId.toString());
 
-                                        );
-                                      },
-                                    );
+                                      /*showDialog(
+                                        barrierColor: Colors.black26,
+                                        context: context,
+                                        builder: (context) {
+                                          return CustomAlertDialog(
+                                            title: "Business Removed",
+                                            description: "The Business has been removed from your Favourites list.",
+                                              onTap: () { removeFav(responseList.data![index].businessId.toString()); }
 
-                                  },
-                                  child: ImageIcon(AssetImage("images/heart.png"),size: 27,color: Color(0xFFe6543a),)),))
-                    ],
+                                          );
+                                        },
+                                      );*/
+
+                                    },
+                                    child: ImageIcon(AssetImage("images/heart.png"),size: 27,color: Color(0xFFe6543a),)),))
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-            ],
+              ],
+            ),
           ),
         );
       },);

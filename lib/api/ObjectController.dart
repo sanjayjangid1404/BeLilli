@@ -11,12 +11,14 @@ import '../Model/RequestModel/LoginRequest.dart';
 import '../Model/RequestModel/RegisterRequestModel.dart';
 import '../Model/RequestModel/RemoveFavRequest.dart';
 import '../Model/RequestModel/SearchItemFavRequest.dart';
+import '../Model/RequestModel/SubscriptionRequest.dart';
 import '../Model/ResponseModel/BusinessDetailsResponse.dart';
 import '../Model/ResponseModel/LoginResponse.dart';
 import '../Model/ResponseModel/RedeemOfferResponse.dart';
 import '../Model/ResponseModel/RegisterResponse.dart';
 import '../Model/ResponseModel/SearchResponse.dart';
 import '../Model/ResponseModel/SimpleResponse.dart';
+import '../Model/ResponseModel/SubscriptionResponse.dart';
 import '../appcomman/AppUtil.dart';
 import 'ApiURL.dart';
 import 'package:http/http.dart' as http;
@@ -32,7 +34,8 @@ class ObjectController
     AppUtil.appLogs(apiURI);
     AppUtil.appLogs("--------------Parameter---------------");
     AppUtil.appLogs(requestModel.toJson());
-    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=login"), body: requestModel.toJson());
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=login"), body: requestModel.toJson());
+    AppUtil.appLogs(json.decode(response.body));
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");
       AppUtil.appLogs(json.decode(response.body));
@@ -51,9 +54,45 @@ class ObjectController
 
       }
     } else {
-      final LoginResponse responseModel;
-      responseModel = LoginResponse.fromJson(json.decode(response.body));
-      return responseModel;
+      /*final LoginResponse responseModel;
+      responseModel = LoginResponse.fromJson(json.decode(response.body));*/
+      return null;
+      throw Exception('Failed to load data!');
+    }
+  }
+
+
+  updateSubscriptionAPI(SubscriptionRequest requestModel) async {
+    String authority = baseURL;
+     String apiUrl = loginAPI;
+    final apiURI = Uri.https(authority, apiUrl);
+    AppUtil.appLogs("--------------WebService---------------");
+    AppUtil.appLogs(apiURI);
+    AppUtil.appLogs("--------------Parameter---------------");
+    AppUtil.appLogs(requestModel.toJson());
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=updatesubscriptionandroid"), body: requestModel.toJson());
+    AppUtil.appLogs(json.decode(response.body));
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      AppUtil.appLogs("--------------Response---------------");
+      AppUtil.appLogs(json.decode(response.body));
+      int statusCode = response.statusCode;
+      AppUtil.appLogs("--------------Status Code---------------");
+      AppUtil.appLogs(statusCode);
+      final SubscriptionResponse responseModel;
+      if (statusCode == 200 || response.statusCode == 400) {
+        responseModel = SubscriptionResponse.fromJson(json.decode(response.body));
+        return responseModel;
+      } else {
+        responseModel = SubscriptionResponse.fromJson(json.decode(response.body));
+        return responseModel;
+        throw Exception('Failed to load data!');
+        // return loginResponse;
+
+      }
+    } else {
+      /*final LoginResponse responseModel;
+      responseModel = LoginResponse.fromJson(json.decode(response.body));*/
+      return null;
       throw Exception('Failed to load data!');
     }
   }
@@ -67,8 +106,9 @@ class ObjectController
     AppUtil.appLogs(apiURI);
     AppUtil.appLogs("--------------Parameter---------------");
     AppUtil.appLogs(requestModel.toJson());
-    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=register"),
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=register"),
         body: requestModel.toJson());
+    AppUtil.appLogs(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");
       AppUtil.appLogs(json.decode(response.body));
@@ -86,10 +126,12 @@ class ObjectController
         // return loginResponse;
 
       }
-    } else {
+    }
+    else {
       final RegisterResponse responseModel;
-      responseModel = RegisterResponse.fromJson(json.decode(response.body));
-      return responseModel;
+      // AppUtil.appLogs(jsonDecode(response.body.toString()));
+      // AppUtil.showToast(json.decode(response.body)["message"], "e");
+      return null;
       throw Exception('Failed to load data!');
     }
   }
@@ -103,7 +145,7 @@ class ObjectController
     AppUtil.appLogs(apiURI);
     AppUtil.appLogs("--------------Parameter---------------");
     AppUtil.appLogs(requestModel.toJson());
-    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=resetpassword"), body: requestModel.toJson());
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=resetpassword"), body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");
       AppUtil.appLogs(json.decode(response.body));
@@ -134,7 +176,7 @@ class ObjectController
 
     AppUtil.appLogs("--------------Parameter---------------");
     AppUtil.appLogs(requestModel.toJson());
-    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=updateprofile"), body: requestModel.toJson());
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=updateprofile"), body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");
       AppUtil.appLogs(json.decode(response.body));
@@ -164,7 +206,7 @@ class ObjectController
 
     AppUtil.appLogs("--------------Parameter---------------");
     AppUtil.appLogs(requestModel.toJson());
-    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=getbusinessdetail"), body: requestModel.toJson());
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=getbusinessdetail"), body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");
       AppUtil.appLogs(json.decode(response.body));
@@ -194,7 +236,7 @@ class ObjectController
 
     AppUtil.appLogs("--------------Parameter---------------");
     AppUtil.appLogs(requestModel.toJson());
-    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=addtofavourite"), body: requestModel.toJson());
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=addtofavourite"), body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");
       AppUtil.appLogs(json.decode(response.body));
@@ -224,7 +266,7 @@ class ObjectController
 
     AppUtil.appLogs("--------------Parameter---------------");
     AppUtil.appLogs(requestModel.toJson());
-    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=redeemoffer"), body: requestModel.toJson());
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=redeemoffer"), body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");
       AppUtil.appLogs(json.decode(response.body));
@@ -254,7 +296,7 @@ class ObjectController
 
     AppUtil.appLogs("--------------Parameter---------------");
     AppUtil.appLogs(requestModel.toJson());
-    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=deletefavourite"), body: requestModel.toJson());
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=deletefavourite"), body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");
       AppUtil.appLogs(json.decode(response.body));
@@ -285,7 +327,7 @@ class ObjectController
 
     AppUtil.appLogs("--------------Parameter---------------");
     AppUtil.appLogs(requestModel.toJson());
-    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=searchbusinesses"), body: requestModel.toJson());
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=searchbusinesses"), body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");
       AppUtil.appLogs(json.decode(response.body));
@@ -311,11 +353,11 @@ class ObjectController
     }
   }
 
-  subscriptionUpdate(AddSubscriptionRequest requestModel) async {
+  subscriptionUpdate(SubscriptionRequest requestModel) async {
 
     AppUtil.appLogs("--------------Parameter---------------");
     AppUtil.appLogs(requestModel.toJson());
-    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=updatesubscriptionandroid"), body: requestModel.toJson());
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=updatesubscriptionandroid"), body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");
       AppUtil.appLogs(json.decode(response.body));

@@ -1,9 +1,9 @@
 /// error : false
-/// message : "User detail"
-/// data : {"id":"1","first_name":"demo","last_name":"testing","email":"demo@gmail.com","password":"$2y$10$Qf7lTvFLDmyO51TyDlw.xO8jZ9IFpANybwvWH4fHhR6VZP7R323H2","device_type":"Android","device_id":"","lat":null,"lang":null,"status":"1","created":"2023-08-23 10:17:35","updated":"2023-08-23 10:30:13","start_date":null,"end_date":null}
+/// message : "Subscription Added"
+/// data : {"id":"1","first_name":"demo","last_name":"testing","email":"demo@gmail.com","password":"$2y$10$Qf7lTvFLDmyO51TyDlw.xO8jZ9IFpANybwvWH4fHhR6VZP7R323H2","device_type":"Android","device_id":"","lat":null,"lang":null,"status":"1","created":"2023-08-23 10:17:35","updated":"2023-08-23 11:32:53","start_date":"2023-08-23 12:19:21","end_date":"2023-09-23 12:19:21"}
 
-class LoginResponse {
-  LoginResponse({
+class SubscriptionResponse {
+  SubscriptionResponse({
       bool? error, 
       String? message, 
       Data? data,}){
@@ -12,7 +12,7 @@ class LoginResponse {
     _data = data;
 }
 
-  LoginResponse.fromJson(dynamic json) {
+  SubscriptionResponse.fromJson(dynamic json) {
     _error = json['error'];
     _message = json['message'];
     _data = json['data'] != null ? Data.fromJson(json['data']) : null;
@@ -20,10 +20,10 @@ class LoginResponse {
   bool? _error;
   String? _message;
   Data? _data;
-LoginResponse copyWith({  bool? error,
+SubscriptionResponse copyWith({  bool? error,
   String? message,
   Data? data,
-}) => LoginResponse(  error: error ?? _error,
+}) => SubscriptionResponse(  error: error ?? _error,
   message: message ?? _message,
   data: data ?? _data,
 );
@@ -54,9 +54,9 @@ LoginResponse copyWith({  bool? error,
 /// lang : null
 /// status : "1"
 /// created : "2023-08-23 10:17:35"
-/// updated : "2023-08-23 10:30:13"
-/// start_date : null
-/// end_date : null
+/// updated : "2023-08-23 11:32:53"
+/// start_date : "2023-08-23 12:19:21"
+/// end_date : "2023-09-23 12:19:21"
 
 class Data {
   Data({
@@ -72,8 +72,8 @@ class Data {
       String? status, 
       String? created, 
       String? updated, 
-      dynamic startDate, 
-      dynamic endDate,}){
+      String? startDate, 
+      String? endDate,}){
     _id = id;
     _firstName = firstName;
     _lastName = lastName;
@@ -94,17 +94,17 @@ class Data {
     _id = json['id'];
     _firstName = json['first_name'];
     _lastName = json['last_name'];
-    _email = json['email']??"";
-    _password = json['password']??"";
-    _deviceType = json['device_type']??"";
-    _deviceId = json['device_id']??"";
-    _lat = json['lat']??"";
-    _lang = json['lang']??"";
+    _email = json['email'];
+    _password = json['password'];
+    _deviceType = json['device_type'];
+    _deviceId = json['device_id'];
+    _lat = json['lat'];
+    _lang = json['lang'];
     _status = json['status'];
     _created = json['created'];
     _updated = json['updated'];
-    _startDate = json['start_date']??"";
-    _endDate = json['end_date']??"";
+    _startDate = json['start_date'];
+    _endDate = json['end_date'];
   }
   String? _id;
   String? _firstName;
@@ -118,8 +118,8 @@ class Data {
   String? _status;
   String? _created;
   String? _updated;
-  dynamic _startDate;
-  dynamic _endDate;
+  String? _startDate;
+  String? _endDate;
 Data copyWith({  String? id,
   String? firstName,
   String? lastName,
@@ -132,8 +132,8 @@ Data copyWith({  String? id,
   String? status,
   String? created,
   String? updated,
-  dynamic startDate,
-  dynamic endDate,
+  String? startDate,
+  String? endDate,
 }) => Data(  id: id ?? _id,
   firstName: firstName ?? _firstName,
   lastName: lastName ?? _lastName,
@@ -161,8 +161,8 @@ Data copyWith({  String? id,
   String? get status => _status;
   String? get created => _created;
   String? get updated => _updated;
-  dynamic get startDate => _startDate;
-  dynamic get endDate => _endDate;
+  String? get startDate => _startDate;
+  String? get endDate => _endDate;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

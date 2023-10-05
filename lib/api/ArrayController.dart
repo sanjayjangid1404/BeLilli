@@ -18,7 +18,7 @@ class ArrayController {
 
 
 
-    final response = await http.get(Uri.parse("http://belilli.co.uk/api.php?function=getcategories"));
+    final response = await http.get(Uri.parse("https://www.belilli.co.uk/api.php?function=getcategories"));
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");
       AppUtil.appLogs(response.body.isNotEmpty ? json.decode(response.body) : "");
@@ -40,7 +40,7 @@ class ArrayController {
 
   Future<BusinessResponse?> getAllBusiness(BusinessFilterRequest requestModel) async {
     AppUtil.appLogs(requestModel.toJson());
-    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=getbusinesses"),body: requestModel.toJson());
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=getbusinesses"),body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");
       AppUtil.appLogs(response.body.isNotEmpty ? json.decode(response.body) : "");
@@ -62,7 +62,7 @@ class ArrayController {
 
   Future<FeaturedListResponse?> getAllFeatured(BusinessFilterRequest requestModel) async {
     AppUtil.appLogs(requestModel.toJson());
-    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=getfeaturedbusinesses"),body: requestModel.toJson());
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=getfeaturedbusinesses"),body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");
       AppUtil.appLogs(response.body.isNotEmpty ? json.decode(response.body) : "");
@@ -84,7 +84,7 @@ class ArrayController {
 
   Future<FavouriteResponse?> getAllFavouriteList(FavListRequest requestModel) async {
     AppUtil.appLogs(requestModel.toJson());
-    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=getuserfavourites"),
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=getuserfavourites"),
         body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");
@@ -94,21 +94,22 @@ class ArrayController {
       AppUtil.appLogs(statusCode);
       if (statusCode == 200) {
         final FavouriteResponse imgList =FavouriteResponse.fromJson(json.decode(response.body));
-
-
         return imgList;
       } else {
         return null;
       }
     } else {
-      throw Exception('Failed to load data!');
+      final FavouriteResponse imgList =FavouriteResponse.fromJson(json.decode(response.body));
+
+      return imgList;
+      // throw Exception('Failed to load data!');
     }
   }
 
 
   Future<GetActivityResponse?> getAllActivity(SimpleRequest requestModel) async {
     AppUtil.appLogs(requestModel.toJson());
-    final response = await http.post(Uri.parse("http://belilli.co.uk/api.php?function=getactivityhistory"),
+    final response = await http.post(Uri.parse("https://www.belilli.co.uk/api.php?function=getactivityhistory"),
         body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       AppUtil.appLogs("--------------Response---------------");

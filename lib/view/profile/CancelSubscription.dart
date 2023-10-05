@@ -1,7 +1,10 @@
 
+import 'dart:async';
+
 import 'package:belilli/appcomman/AppColor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 
 
 
@@ -14,6 +17,8 @@ class CancelSubscription extends StatefulWidget{
 }
 
 class _CancelSubscription extends State<CancelSubscription> {
+
+  late StreamSubscription<dynamic>  _streamSubscription;
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +85,21 @@ class _CancelSubscription extends State<CancelSubscription> {
 
                         InkWell(
                           onTap: (){
+
+                            Stream purchaseUpdated = InAppPurchase.instance.purchaseStream;
+                              _streamSubscription = purchaseUpdated.listen((purchaseList) {
+                              // _listenToPurchase(purchaseList, context);
+                            }, onDone: (){
+                              _streamSubscription.cancel();
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Cancel Subscription success")));
+                            }, onError: (error){
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error1")));
+                            });
+                            // initStore();
+
+                            setState(() {
+
+                            });
                             // Navigator.push(context, MaterialPageRoute(builder: (context) => EnjoyInView(),));
                           },
                           child: Container(

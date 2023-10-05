@@ -19,10 +19,15 @@ class FilterView extends StatefulWidget{
 class _FilterView extends State<FilterView> {
 
   double distanceValue = 0;
+  var distanceValue2;
   CategoryListResponse categoryNameList = CategoryListResponse();
 
   List<bool>categoryClick = [];
   List<String>selectCategory = [];
+
+
+
+
 
   String fromPage = "";
 
@@ -34,10 +39,12 @@ class _FilterView extends State<FilterView> {
     SharedPreferences.getInstance().then((SharedPreferences sp){
 
 
-      selectCategory = sp.getStringList("filterList")!=null ? sp.getStringList("filterList")!:[];
+      // selectCategory = sp.getStringList("filterList")!=null ? sp.getStringList("filterList")!:[];
       
       if(fromPage=="home")
       {
+
+        print("CategoryName=>$categoryNameList");
 
 
         for(int i=0; i<categoryNameList.data!.length; i++)
@@ -52,6 +59,11 @@ class _FilterView extends State<FilterView> {
             categoryClick.add(false);
           }
         }
+
+        if(distanceValue2!=null)
+          {
+            distanceValue = distanceValue2;
+          }
 
 
       }
@@ -73,6 +85,14 @@ class _FilterView extends State<FilterView> {
     if(fromPage=="home" && argument["data"]!=null)
       {
         categoryNameList = argument['data'];
+        if(argument["type"]!=null)
+          {
+            selectCategory = argument["type"];
+          }
+        if(argument["value"]!=null)
+          {
+            distanceValue2 = double.parse(argument["value"].toString());
+          }
 
       }
 
@@ -199,6 +219,7 @@ class _FilterView extends State<FilterView> {
 
                       SizedBox(height: 20,),
 
+                      categoryClick.isNotEmpty ?
                       Wrap(
                         direction: Axis.horizontal,
                         children: [
@@ -226,7 +247,7 @@ class _FilterView extends State<FilterView> {
                                   child: Text(categoryNameList.data![i].name.toString(),style: TextStyle(fontSize: 12,color: Colors.white),)),
                             ),
                         ],
-                      ),
+                      ) : SizedBox(),
 
                       SizedBox(height: 30,),
 
@@ -236,6 +257,7 @@ class _FilterView extends State<FilterView> {
                           {
                             setState(() {
                               categoryClick.clear();
+                              distanceValue = 0;
                               for(int i=0; i<categoryNameList.data!.length; i++)
                               {
                                 categoryClick.add(false);
@@ -271,12 +293,15 @@ class _FilterView extends State<FilterView> {
                             }
                           }
 
-                          SharedPreferences sp = await SharedPreferences.getInstance();
+                        if(selectCategory.isNotEmpty || distanceValue>0)
+                          {
+                            NavigationService.instance.navigateToArgVal("/searchFilterHome", distanceValue.toString(), selectCategory);
+                          }
+                        else {
+                          AppUtil.showToast("Apply Filter", "i");
+                        }
 
-                          // sp.setStringList("filterList", selectCategory);
-                          // sp.setString("radius", distanceValue.toString());
 
-                         NavigationService.instance.navigateToArgVal("/searchFilterHome", distanceValue.toString(), selectCategory);
                           setState(()  {
                             print(selectCategory);
                           });

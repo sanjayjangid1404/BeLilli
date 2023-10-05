@@ -37,6 +37,9 @@ class NavigationService {
   Future<dynamic> navigateToArgValueVal(String _rn, String value, var data,var type) {
     return navigationKey.currentState!.pushNamed(_rn, arguments: {'arg': value, 'data': data, 'type':type});
   }
+  Future<dynamic> navigateToArgValueVal2(String _rn, String value, var data,var type,var distance) {
+    return navigationKey.currentState!.pushNamed(_rn, arguments: {'arg': value, 'data': data, 'type':type,'value':distance});
+  }
 
   Future<dynamic> navigateToRoute(MaterialPageRoute _rn) {
     return navigationKey.currentState!.push(_rn);
